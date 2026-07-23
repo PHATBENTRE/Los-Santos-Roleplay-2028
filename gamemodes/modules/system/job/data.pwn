@@ -11,7 +11,8 @@
 enum _:E_JOB_TYPE
 {
     JOB_NONE = 0,
-    JOB_PIZZA
+    JOB_PIZZA,
+    JOB_CAR_RESTORATION
 };
 
 enum _:E_JOB_STOP_REASON

@@ -96,6 +96,11 @@
 #include "modules/system/job/pizza/core.pwn"
 #include "modules/system/job/pizza/commands.pwn"
 
+#include "modules/system/job/car_restoration/data.pwn"
+#include "modules/system/job/car_restoration/vehicle.pwn"
+#include "modules/system/job/car_restoration/core.pwn"
+#include "modules/system/job/car_restoration/ui.pwn"
+#include "modules/system/job/car_restoration/commands.pwn"
 
 
 #include "modules/system/job/commands.pwn"
@@ -114,4 +119,3 @@
 
 // This fallback must remain after every command module.
 #include "modules/system/help/unknown.pwn"
-
