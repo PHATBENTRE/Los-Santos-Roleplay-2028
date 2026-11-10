@@ -8,10 +8,10 @@ layer; YSI is a compile-time include library.
 ## Build
 
 The source entry point is `gamemodes/main.pwn` and the output is
-`gamemodes/main.amx`. Build scripts call Pawno's compiler at
-`pawno/pawncc.exe`. Install your Pawno compiler there. The headers
-remain under `qawno/include` and are passed explicitly to Pawno;
-the Qawno compiler is not used by the build scripts.
+`gamemodes/main.amx`. Build scripts use the open.mp compiler bundled at
+`qawno/pawncc.exe`, matched to the included open.mp headers and YSI 5.10.0006.
+You can still edit source with Pawno, but its older compiler does not support
+all compiler features used by this YSI version.
 
 On Windows, run `COMPILE.bat` or press Ctrl+Shift+B in VS Code.
 `RUN_LSRP.bat` installs missing MySQL, BCrypt, and YSI dependencies,

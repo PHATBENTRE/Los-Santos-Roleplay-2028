@@ -4,7 +4,7 @@
         {
             "label": "Compile LS:RP Base",
             "type": "process",
-            "command": "${workspaceFolder}\\pawno\\pawncc.exe",
+            "command": "${workspaceFolder}\\qawno\\pawncc.exe",
             "args": [
                 "gamemodes\\main.pwn",
                 "-iqawno\\include",

@@ -29,14 +29,13 @@ if errorlevel 1 (
 :checkamx
 if exist "gamemodes\main.amx" goto run
 
-if not exist "pawno\pawncc.exe" (
-    echo [ERROR] Khong tim thay pawno\pawncc.exe.
-    echo Dat compiler Pawn cua ban tai pawno\pawncc.exe.
+if not exist "qawno\pawncc.exe" (
+    echo [ERROR] Khong tim thay qawno\pawncc.exe trong goi open.mp.
     pause
     exit /b 1
 )
-echo [BUILD] Chua co main.amx, dang compile bang Pawno...
-"pawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
+echo [BUILD] Chua co main.amx, dang compile bang compiler open.mp...
+"qawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
 if errorlevel 1 (
     echo [ERROR] Compile that bai.
     pause
