@@ -1,6 +1,7 @@
 hostname = 127.0.0.1
 username = root
-password =
+# If the MySQL account has a password, add: password = your_password
+# Leave the password line out entirely when the account password is empty.
 database = lsrp
 auto_reconnect = true
 server_port = 3306
