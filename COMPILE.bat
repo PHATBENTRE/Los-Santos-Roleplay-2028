@@ -3,8 +3,9 @@ setlocal
 cd /d "%~dp0"
 title LS:RP - Compile
 
-if not exist "qawno\pawncc.exe" (
-    echo [ERROR] Khong tim thay qawno\pawncc.exe
+set "PAWNO_COMPILER=%~dp0pawno\pawncc.exe"
+if not exist "%PAWNO_COMPILER%" (
+    echo [ERROR] Khong tim thay pawno\pawncc.exe
     pause
     exit /b 1
 )
@@ -26,7 +27,7 @@ if errorlevel 1 (
 :compile
 echo.
 echo ===== COMPILE LS:RP BASE =====
-"qawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
+"%PAWNO_COMPILER%" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
 if errorlevel 1 (
     echo.
     echo [FAILED] Compile co loi. Gui log compiler cho ChatGPT.

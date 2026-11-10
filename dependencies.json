@@ -62,17 +62,5 @@
                 }
             ]
         }
-        {
-            "name": "YSI",
-            "type": "github_archive",
-            "repo": "pawn-lang/YSI-Includes",
-            "tag": "v5.10.0006",
-            "copy_directory_patterns": [
-                {
-                    "pattern": "YSI_*",
-                    "to": "qawno/include"
-                }
-            ]
-        }
     ]
 }

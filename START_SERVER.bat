@@ -3,6 +3,13 @@ setlocal
 cd /d "%~dp0"
 title LS:RP Development Server
 
+if not exist "mysql.ini" (
+    echo [ERROR] Khong tim thay mysql.ini.
+    echo Copy mysql.ini.example thanh mysql.ini va nhap thong tin MySQL.
+    pause
+    exit /b 1
+)
+
 if not exist "plugins\mysql.dll" goto deps
 if not exist "plugins\samp_bcrypt.dll" goto deps
 if not exist "qawno\include\a_mysql.inc" goto deps
@@ -22,8 +29,14 @@ if errorlevel 1 (
 :checkamx
 if exist "gamemodes\main.amx" goto run
 
-echo [BUILD] Chua co main.amx, dang compile...
-"qawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
+if not exist "pawno\pawncc.exe" (
+    echo [ERROR] Khong tim thay pawno\pawncc.exe.
+    echo Dat compiler Pawn cua ban tai pawno\pawncc.exe.
+    pause
+    exit /b 1
+)
+echo [BUILD] Chua co main.amx, dang compile bang Pawno...
+"pawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
 if errorlevel 1 (
     echo [ERROR] Compile that bai.
     pause

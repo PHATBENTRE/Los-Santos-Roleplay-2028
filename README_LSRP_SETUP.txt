@@ -1,86 +1,51 @@
-LS:RP - OMP BASE READY
-======================
+LS:RP — HƯỚNG DẪN CÀI ĐẶT OPEN.MP
+======================================
 
-Base: midosvt/omp-base-script
-Target: Windows x86 open.mp
+NỀN TẢNG
+--------
+- Server target: open.mp Windows x86.
+- Source chính: gamemodes/main.pwn.
+- Compiler: Pawno tại pawno/pawncc.exe.
+- Include open.mp, MySQL, BCrypt và YSI: qawno/include.
+  Thư mục qawno/include chỉ chứa include; script build gọi compiler Pawno.
+- Runtime open.mp và các component nằm ở thư mục gốc và components/.
 
-DEPENDENCIES USED BY THIS BASE
-------------------------------
-1. MySQL R41-4
-   - plugins\mysql.dll
-   - qawno\include\a_mysql.inc
-   - libmariadb.dll
-   - log-core.dll
+CÀI ĐẶT
+-------
+1. Cài MariaDB/MySQL và tạo user SQL. database_structure.sql sẽ tạo database lsrp.
+2. Copy mysql.ini.example thành mysql.ini; nhập hostname, username,
+   password, database và port của máy chủ SQL.
+3. Import database_structure.sql vào MariaDB/MySQL trước.
+4. Chạy lần lượt các file trong database/migrations:
+   001_account_characters.sql
+   002_character_profile.sql
+   003_owned_vehicles.sql
+   004_admin_system.sql
+   005_character_jobs.sql
+   006_job_employment.sql
+   007_character_current_job.sql
+   008_vehicle_fuel.sql
+5. Đặt pawncc.exe của Pawno tại pawno/pawncc.exe.
+6. Chạy RUN_LSRP.bat. Lần đầu script cài MySQL R41-4, samp-bcrypt 0.4.1
+   và YSI 5.10.0006 nếu thiếu; sau đó biên dịch main.pwn và mở omp-server.exe.
 
-2. samp-bcrypt 0.4.1
-   - plugins\samp_bcrypt.dll
-   - qawno\include\samp_bcrypt.inc
+Không cần thêm STREAMER, sscanf hoặc Pawn.CMD cho source hiện tại.
+Chỉ thêm chúng nếu code bắt đầu include hoặc gọi chúng.
 
-3. YSI-Includes 5.10.0006 (library, not a runtime plugin)
-   - qawno\include\YSI_*\...
-   - gamemode currently uses YSI_Coding\y_hooks
-
-KHONG CAN THEM STREAMER / SSCANF / PAWN.CMD DE CHAY BASE HIEN TAI.
-Chi them khi source bat dau su dung chung.
-
-BAN CHI CAN LAM
----------------
-A. Setup MySQL/MariaDB/XAMPP cua ban.
-B. Import: database_structure.sql
-   File SQL nay da duoc chinh de tao/use database `lsrp`.
-C. Sua mysql.ini:
-
-   hostname = 127.0.0.1
-   username = root
-   password = MAT_KHAU_CUA_BAN
-   database = lsrp
-   auto_reconnect = true
-
-D. Double-click RUN_LSRP.bat
-
-Lan dau RUN_LSRP.bat se:
-- Tai MySQL R41-4 tu GitHub chinh thuc.
-- Tai samp-bcrypt 0.4.1 tu GitHub chinh thuc.
-- Tai YSI 5.10.0006 tu GitHub chinh thuc.
-- Dat DLL/include dung vi tri.
-- Compile gamemodes\main.pwn -> gamemodes\main.amx.
-- Chay omp-server.exe.
-
-Lan sau neu dependencies va main.amx da co thi se vao server nhanh hon.
+OPEN.MP
+-------
+- main.pwn include trực tiếp <open.mp>.
+- config.json nạp main.amx và khai báo MySQL/BCrypt trong legacy_plugins.
+- MySQL/BCrypt là plugin tương thích SA-MP cũ; open.mp tải chúng qua
+  lớp tương thích. Chúng không phải open.mp components.
+- Repo hiện đóng gói runtime Windows x86; nếu VPS là Linux, cần bộ runtime
+  open.mp Linux và các plugin .so tương ứng.
 
 SERVER LOCAL
 ------------
 127.0.0.1:7777
 
-CONFIG.JSON DA DUOC CHINH
--------------------------
-- main_scripts = main 1
-- legacy_plugins = mysql, samp_bcrypt
-- max_players = 50
-- MAX_PLAYERS trong main.pwn = 50
-- name = LS:RP Development
-- stunt bonus off
-- player marker off
-- manual engine/lights on
-- default entry/exit markers off
-
-COMPILE BANG VS CODE
---------------------
-Open Folder chinh thu muc nay, sau do:
-Ctrl + Shift + B
-
-Hoac double-click COMPILE.bat.
-
-NEU MYSQL PLUGIN LOAD FAIL TREN WINDOWS
----------------------------------------
-Kiem tra Microsoft Visual C++ Redistributable x86 va xem:
-- plugins\mysql.dll
-- libmariadb.dll
-- log-core.dll
-co ton tai hay khong.
-
 RCON
 ----
-config.json dang dung password development:
-LSRP_DEV_CHANGE_ME_9274
-Hay doi truoc khi public server.
+RCON bị tắt mặc định. Nếu cần dùng, bật trong config.json và đặt password
+riêng trước khi đưa server lên mạng. Không dùng mật khẩu mẫu công khai.

@@ -1,69 +1,57 @@
-# Introduction
+# Los Santos Roleplay — open.mp base
 
-This is a simple yet practical base script designed for anyone looking to develop gamemodes for [open.mp](https://open.mp/) or SA:MP.  Whether you're a beginner starting from scratch or a returning developer familiar with the platform, this script offers a clean foundation to build on.
+A modular Pawn roleplay gamemode targeting **open.mp**. MariaDB is recommended because the SQL migrations use MariaDB's `ADD COLUMN IF NOT EXISTS` syntax. The source includes
+`<open.mp>` directly and uses the open.mp server runtime. MySQL R41-4
+and samp-bcrypt are legacy SA:MP plugins loaded through open.mp's compatibility
+layer; YSI is a compile-time include library.
 
-It uses [MySQL](https://github.com/pBlueG/SA-MP-MySQL) for handling data and [BCrypt](https://github.com/Sreyas-Sreelal/samp-bcrypt) for secure password hashing.  While the script itself is straightforward, it does assume you have at least a basic understanding of Pawn scripting and MySQL/SQL.  If you're willing to learn and explore how each part works, this base will be a solid starting point for your own projects.
+## Build
 
-# Installation
+The source entry point is `gamemodes/main.pwn` and the output is
+`gamemodes/main.amx`. Build scripts call Pawno's compiler at
+`pawno/pawncc.exe`. Install your Pawno compiler there. The headers
+remain under `qawno/include` and are passed explicitly to Pawno;
+the Qawno compiler is not used by the build scripts.
 
-This section provides a step-by-step guide to get the gamemode running properly on your setup.
-
-## Downloads
-
-Download the following files before proceeding:
-* **[open.mp server (latest version)](https://github.com/openmultiplayer/open.mp/releases/latest)**
-* **[YSI includes (latest version)](https://github.com/pawn-lang/YSI-Includes/releases/latest)**
-* **[MySQL plugin (R41-4)](https://github.com/pBlueG/SA-MP-MySQL/releases/tag/R41-4)**
-* **[BCrypt plugin (v0.4.1)](https://github.com/Sreyas-Sreelal/samp-bcrypt/releases/tag/0.4.1)**
-
-## Setup Instructions
-
-**1. open.mp server**
-- Extract the open.mp server files into the **root folder** of your server.
-
-**2. YSI Library**
-- Extract the contents of the archive into `qawno/include/`.
-
-**3. MySQL and BCrypt Plugins**
-- Place the plugin files (`.dll` for Windows or `.so` for Linux) inside the `plugins/` directory.
-- Move the corresponding `.inc` include files to `qawno/include/`.
-
-**4. MySQL Dependencies**
-- Files like `libmariadb.dll`, `log-core.dll` (`log-core.so` for Linux), or any additional libraries should be placed directly in the server's **root folder**.
-
-> [!NOTE]
-> Ensure that all plugin names are correctly listed in your `config.json` file under the `legacy_plugins` setting.
+On Windows, run `COMPILE.bat` or press Ctrl+Shift+B in VS Code.
+`RUN_LSRP.bat` installs missing MySQL, BCrypt, and YSI dependencies,
+compiles the gamemode when `main.amx` is absent, and starts
+`omp-server.exe`.
 
 ## Database
 
-This gamemode uses [`mysql_connect_file`](https://github.com/pBlueG/SA-MP-MySQL/wiki#mysql_connect_file) to connect to the database through an INI-style configuration file.  This file contains all the necessary credentials and settings needed to establish a connection.
+1. Import `database_structure.sql` to create the `lsrp`
+   database and master-account table.
+2. Apply every file in `database/migrations` in filename order,
+   from `001` through `008`.
+3. Copy `mysql.ini.example` to `mysql.ini` and set the
+   database host, username, password, database name, and port.
 
-Example configuration file:
-**[mysql.ini](https://github.com/midosvt/omp-base-script/blob/master/mysql.ini)**
+The gamemode uses `mysql_connect_file()` to read `mysql.ini`.
+`mysql.ini` is local configuration and is excluded from Git.
 
-Please refer to the [MySQL plugin documentation](https://github.com/pBlueG/SA-MP-MySQL/wiki#mysql_connect_file) for details on all available fields and options.
+## open.mp configuration
 
-Download the database structure:
-**[database_structure.sql](https://github.com/midosvt/omp-base-script/blob/master/database_structure.sql)**
+`config.json` loads `main.amx` and lists MySQL and
+samp-bcrypt under `pawn.legacy_plugins`. Keep the server runtime and
+its `components/` from the same open.mp release. RCON is disabled by
+default; set a private password before enabling it.
 
-> [!NOTE]
-> Make sure to import the `.sql` structure into your database before launching the server, otherwise account registration and login features will not function properly.
+The current repository package targets Windows x86. A Linux VPS needs the
+Linux open.mp package and matching `.so` plugin builds.
 
-# Structure
+## Project structure
 
-This gamemode follows a modular structure to keep the codebase clean, organized, and easy to maintain.  If you're not familiar with modular programming, check out [this tutorial](https://sampforum.blast.hk/showthread.php?tid=597338&highlight=Modular+programming) before making any changes.  It's highly recommended to stick with this approach, as it makes development, debugging, and future updates much easier.
+- `gamemodes/main.pwn` — module entry point.
+- `gamemodes/modules/core/` — account, character, chat, and server core.
+- `gamemodes/modules/system/` — admin, jobs, vehicles, and help.
+- `database/migrations/` — incremental schema for the game systems.
 
-# Contributing
+## Credits
 
-Everyone is welcome to contribute - whether it's advice, pull requests, or suggestions.
-
-If you notice any bugs, issues, or have ideas to make things better, feel free to open an issue or join the discussion on [our Discord](https://discord.gg/samp).
-
-# Special Thanks to
-- SA:MP and open.mp teams (past, present, and future).
-- Mido for developing this gamemode.
-- BlueG and maddinat0r for the MySQL plugin.
-- Sys for the BCrypt plugin.
-- Y_Less for the YSI library.
-- Kevin for his highly constructive suggestions and insights.
-- itsneufox for testing this script.
+- open.mp and SA:MP teams
+- Mido, the original base gamemode author
+- BlueG and maddinat0r, MySQL plugin
+- Sys, samp-bcrypt
+- Y_Less, YSI
+- Kevin and itsneufox, feedback and testing
