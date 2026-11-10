@@ -2,5 +2,5 @@ hostname = 127.0.0.1
 username = root
 password =
 database = lsrp
-autoreconnect = true
-port = 3306
+auto_reconnect = true
+server_port = 3306

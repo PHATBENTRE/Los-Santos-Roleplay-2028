@@ -24,8 +24,9 @@ compiles the gamemode when `main.amx` is absent, and starts
    database and master-account table.
 2. Apply every file in `database/migrations` in filename order,
    from `001` through `008`.
-3. Copy `mysql.ini.example` to `mysql.ini` and set the
-   database host, username, password, database name, and port.
+3. Copy `mysql.ini.example` to `mysql.ini` and set the hostname, username,
+   password, database, and `server_port`. Leave the password blank only if
+   your MySQL root account has no password.
 
 The gamemode uses `mysql_connect_file()` to read `mysql.ini`.
 `mysql.ini` is local configuration and is excluded from Git.

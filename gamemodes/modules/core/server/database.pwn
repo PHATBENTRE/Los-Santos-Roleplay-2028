@@ -30,10 +30,13 @@ hook OnGameModeInit()
     }
     else 
     {
+        new connectionError[160];
+        mysql_error(connectionError, sizeof(connectionError), g_DatabaseHandle);
+        printf("MySQL connection error (%d): %s", mysql_errno(g_DatabaseHandle), connectionError);
         print("-----------------------------------------------");
         print("Failed to connect to database!");
         print("Please verify your mysql.ini settings");
-        print("Server will be locked for maintenance...");
+        print("Database-dependent features are unavailable until connection succeeds.");
         print("-----------------------------------------------");
 
         // Lock down the server to prevent players from joining during DB failure.
