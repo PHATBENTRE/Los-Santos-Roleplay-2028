@@ -15,8 +15,7 @@ all compiler features used by this YSI version.
 
 On Windows, run `COMPILE.bat` or press Ctrl+Shift+B in VS Code.
 `RUN_LSRP.bat` installs missing MySQL, BCrypt, and YSI dependencies,
-compiles the gamemode when `main.amx` is absent, and starts
-`omp-server.exe`.
+compiles the gamemode before starting, and launches `omp-server.exe`.
 
 ## Database
 
@@ -25,8 +24,12 @@ compiles the gamemode when `main.amx` is absent, and starts
 2. Apply every file in `database/migrations` in filename order,
    from `001` through `008`.
 3. Copy `mysql.ini.example` to `mysql.ini` and set the hostname, username,
-   password, database, and `server_port`. Leave the password blank only if
-   your MySQL root account has no password.
+   database, and `server_port`. The file must be in the server root beside
+   `omp-server.exe`.
+4. If the MySQL account has a password, add a non-empty line such as
+   `password = your_password`. If the password is empty, omit the password
+   line entirely; do not use `password =`. MySQL R41-4 rejects empty option
+   values in this file and returns an invalid connection handle.
 
 The gamemode uses `mysql_connect_file()` to read `mysql.ini`.
 `mysql.ini` is local configuration and is excluded from Git.
