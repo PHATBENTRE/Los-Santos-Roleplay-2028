@@ -19,12 +19,7 @@ hook OnGameModeInit()
     // located in the open.mp server root directory (no subfolders allowed).
     //
     // This method is ideal for separating database secrets from the codebase.
-    g_DatabaseHandle = mysql_connect(
-    "127.0.0.1",
-    "root",
-    "",
-    "lsrp"
-    );
+    g_DatabaseHandle = mysql_connect_file();
 
     // `mysql_errno` returns 0 on success and -1 on failure.
     if (mysql_errno(g_DatabaseHandle) == 0) 

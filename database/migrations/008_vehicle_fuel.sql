@@ -1,4 +1,4 @@
--- LS:RP migration 006
+-- LS:RP migration 008
 -- Persistent fuel level for character-owned vehicles.
 
 USE `lsrp`;

@@ -1,2 +1,7 @@
 # Ignore the compiled code (AMX)
 *.amx
+
+# Local MySQL credentials and locally installed Pawno compiler
+mysql.ini
+pawno/*.exe
+pawno/*.dll
