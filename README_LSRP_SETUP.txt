@@ -5,9 +5,9 @@ NỀN TẢNG
 --------
 - Server target: open.mp Windows x86.
 - Source chính: gamemodes/main.pwn.
-- Compiler: Pawno tại pawno/pawncc.exe.
+- Compiler: qawno/pawncc.exe đi kèm bộ open.mp trong repo.
 - Include open.mp, MySQL, BCrypt và YSI: qawno/include.
-  Thư mục qawno/include chỉ chứa include; script build gọi compiler Pawno.
+  Script build gọi compiler open.mp; không cần chép compiler Pawno vào repo.
 - Runtime open.mp và các component nằm ở thư mục gốc và components/.
 
 CÀI ĐẶT
@@ -25,9 +25,9 @@ CÀI ĐẶT
    006_job_employment.sql
    007_character_current_job.sql
    008_vehicle_fuel.sql
-5. Đặt pawncc.exe của Pawno tại pawno/pawncc.exe.
+5. Chạy COMPILE.bat hoặc Ctrl+Shift+B để biên dịch main.pwn bằng compiler open.mp.
 6. Chạy RUN_LSRP.bat. Lần đầu script cài MySQL R41-4, samp-bcrypt 0.4.1
-   và YSI 5.10.0006 nếu thiếu; sau đó biên dịch main.pwn và mở omp-server.exe.
+   và YSI 5.10.0006 nếu thiếu; sau đó mở omp-server.exe.
 
 Không cần thêm STREAMER, sscanf hoặc Pawn.CMD cho source hiện tại.
 Chỉ thêm chúng nếu code bắt đầu include hoặc gọi chúng.
