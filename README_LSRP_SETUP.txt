@@ -13,9 +13,11 @@ NỀN TẢNG
 CÀI ĐẶT
 -------
 1. Cài MariaDB/MySQL và tạo user SQL. database_structure.sql sẽ tạo database lsrp.
-2. Copy mysql.ini.example thành mysql.ini. Điền hostname, username, password,
-   database và server_port đúng như tên khóa trong file mẫu. Nếu root XAMPP
-   chưa đặt mật khẩu thì để password trống.
+2. Copy mysql.ini.example thành mysql.ini trong thư mục gốc, cạnh omp-server.exe.
+   Đặt hostname, username, database và server_port theo file mẫu.
+   Nếu tài khoản MySQL có mật khẩu, thêm dòng password = mat_khau_cua_ban.
+   Nếu mật khẩu để trống (ví dụ root XAMPP mặc định), xóa hẳn dòng password;
+   không ghi password = vì MySQL R41-4 từ chối giá trị cấu hình rỗng.
 3. Import database_structure.sql vào MariaDB/MySQL trước.
 4. Chạy lần lượt các file trong database/migrations:
    001_account_characters.sql
