@@ -8,6 +8,7 @@
             "args": [
                 "gamemodes\\main.pwn",
                 "-iqawno\\include",
+                "-igamemodes",
                 "-ogamemodes\\main.amx"
             ],
             "options": {

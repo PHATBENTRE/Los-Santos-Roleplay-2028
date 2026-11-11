@@ -40,7 +40,7 @@ if not exist "gamemodes\main.pwn" (
 )
 
 echo [BUILD] Dang compile gamemodes\main.pwn bang compiler open.mp...
-"qawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
+"qawno\pawncc.exe" "gamemodes\main.pwn" -i"qawno\include" -i"gamemodes" -o"gamemodes\main.amx"
 if errorlevel 1 (
     echo [ERROR] Compile that bai. Server khong chay AMX cu.
     pause

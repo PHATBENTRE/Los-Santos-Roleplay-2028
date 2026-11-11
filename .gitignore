@@ -3,3 +3,8 @@
 
 # Local MySQL credentials
 mysql.ini
+
+# CEF download/test cache and generated resource packages
+.deps-download/cef-1.4.0/
+scriptfiles/cef/*.pak
+scriptfiles/cef/*.pak.manifest

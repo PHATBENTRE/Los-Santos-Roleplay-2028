@@ -27,7 +27,7 @@ if errorlevel 1 (
 :compile
 echo.
 echo ===== COMPILE LS:RP BASE =====
-"%OMP_PAWN_COMPILER%" "gamemodes\main.pwn" -i"qawno\include" -o"gamemodes\main.amx"
+"%OMP_PAWN_COMPILER%" "gamemodes\main.pwn" -i"qawno\include" -i"gamemodes" -o"gamemodes\main.amx"
 if errorlevel 1 (
     echo.
     echo [FAILED] Compile co loi. Gui log compiler cho ChatGPT.

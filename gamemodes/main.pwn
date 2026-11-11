@@ -54,6 +54,7 @@
 // Plugins
 #include <a_mysql>
 #include <samp_bcrypt>
+#include <cef>
 
 // YSI
 #include <YSI_Coding\y_hooks>
@@ -71,6 +72,7 @@
 // Server
 #include "modules/core/server/database.pwn"
 #include "modules/core/server/settings.pwn"
+#include "modules/core/player/cef/state.pwn"
 
 // Player Account + Characters
 #include "modules/core/player/account/utils.pwn"
@@ -85,6 +87,7 @@
 #include "modules/core/player/character/core.pwn"
 
 #include "modules/core/player/account/core.pwn"
+#include "modules/core/player/cef/core.pwn"
 
 #include "modules/system/job/data.pwn"
 #include "modules/system/job/persistence.pwn"
