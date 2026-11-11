@@ -317,7 +317,7 @@ Creator_NormalizeProfile(playerid)
     if (s_CharacterBirthYear[playerid] < CHARACTER_MIN_BIRTH_YEAR ||
         s_CharacterBirthYear[playerid] > CHARACTER_MAX_BIRTH_YEAR)
     {
-        s_CharacterBirthYear[playerid] = 2000;
+        s_CharacterBirthYear[playerid] = 1964;
     }
 
     if (s_CharacterSkinTone[playerid] < 0 ||
@@ -352,8 +352,15 @@ Creator_NormalizeProfile(playerid)
 
     Creator_ClampBirthDay(playerid);
 
-    s_CreatorSkinIndex[playerid] =
-        Creator_FindSkinIndex(playerid);
+    // Pick a random skin from the selected gender and skin-tone group.
+    s_CreatorSkinIndex[playerid] = random(CREATOR_SKINS_PER_GROUP);
+    s_CharacterSkin[playerid] = g_CreatorSkins[
+        s_CharacterGender[playerid]
+    ][
+        s_CharacterSkinTone[playerid]
+    ][
+        s_CreatorSkinIndex[playerid]
+    ];
 
     Creator_ApplySkin(playerid);
     return 1;
@@ -882,7 +889,8 @@ CharacterCreator_ApplyWorld(playerid)
         CAMERA_CUT
     );
 
-    Creator_ShowUI(playerid);
+    if (!UI_Show(playerid, UI_CREATOR))
+        Creator_ShowUI(playerid);
     return 1;
 }
 
@@ -912,6 +920,7 @@ CharacterCreator_Start(playerid)
 
     s_CreatorActive[playerid] = true;
     s_CreatorSaving[playerid] = false;
+    UI_Notify(playerid, "info", "Đã tạo nhân vật. Hãy hoàn tất hồ sơ của bạn.");
 
     SetSpawnInfo(
         playerid,
@@ -935,6 +944,11 @@ CharacterCreator_Start(playerid)
         SpawnPlayer(playerid);
     }
 
+    // CEF uses a single submit flow: save the normalized profile immediately
+    // after the newly created character has loaded.
+    if (UI_UseCEF(playerid))
+        CharacterCreator_Confirm(playerid);
+
     return 1;
 }
 
@@ -950,21 +964,10 @@ CharacterCreator_Confirm(playerid)
         return 0;
     }
 
-    new const age = GetPlayerCharacterAge(playerid);
-
-    if (age < CHARACTER_MIN_AGE ||
-        age > CHARACTER_MAX_AGE)
-    {
-        SendClientMessage(
-            playerid,
-            COLOR_RED,
-            "Do tuoi nhan vat khong hop le."
-        );
-
-        return 0;
-    }
-
     s_CreatorSaving[playerid] = true;
+
+    UI_Notify(playerid, "info", "Đang lưu hồ sơ nhân vật...");
+    printf("[GTASA UI] creator save begin player=%d character=%d account=%d", playerid, s_CharacterID[playerid], GetPlayerAccountID(playerid));
 
     CancelSelectTextDraw(playerid);
 
@@ -997,11 +1000,15 @@ CharacterCreator_Confirm(playerid)
         playerid
     );
 
+    printf("[GTASA UI] creator save query queued player=%d", playerid);
+
     return 1;
 }
 
 public OnCharacterCreatorSaved(playerid)
 {
+    printf("[GTASA UI] creator save callback player=%d connected=%d loaded=%d", playerid, IsPlayerConnected(playerid), IsPlayerCharacterLoaded(playerid));
+    s_CreatorSaving[playerid] = false;
     if (!IsPlayerConnected(playerid) ||
         !IsPlayerCharacterLoaded(playerid))
     {
@@ -1009,8 +1016,10 @@ public OnCharacterCreatorSaved(playerid)
     }
 
     s_CharacterCreated[playerid] = 1;
-    s_CreatorSaving[playerid] = false;
     s_CreatorActive[playerid] = false;
+    UI_Close(playerid);
+
+    UI_Notify(playerid, "success", "Đã tạo nhân vật thành công.");
     
     Creator_DestroyUI(playerid);
     

@@ -310,7 +310,12 @@ CharacterSelector_Refresh(playerid)
 
 CharacterSelector_OpenUI(playerid)
 {
-    if (UI_Show(playerid, UI_SLOTS)) return 1;
+    if (UI_UseCEF(playerid))
+    {
+        Cinematic_StopSelector(playerid);
+        UI_Show(playerid, UI_SLOTS);
+        return 1;
+    }
     CharacterSelector_CreateUI(playerid);
 
     s_SelectorVisible[playerid] = true;

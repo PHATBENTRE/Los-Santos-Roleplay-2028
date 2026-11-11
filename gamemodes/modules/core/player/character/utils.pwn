@@ -217,6 +217,7 @@ Character_LoadSlots(playerid)
         playerid
     );
 
+
     return 1;
 }
 
@@ -290,6 +291,12 @@ Character_ShowNameDialog(
     bool:taken = false
 )
 {
+    if (UI_UseCEF(playerid))
+    {
+        UI_Show(playerid, UI_CREATOR);
+        if (invalid) UI_Notify(playerid, "warning", taken ? "Tên nhân vật đã được sử dụng." : "Tên nhân vật không hợp lệ.");
+        return 1;
+    }
     ShowPlayerDialog(
         playerid,
         DIALOG_CHARACTER_NAME,
@@ -384,6 +391,9 @@ Character_CheckName(playerid, const name[])
         "d",
         playerid
     );
+
+    UI_Notify(playerid, "info", "Đang kiểm tra tên nhân vật với máy chủ...");
+    printf("[GTASA UI] character name query queued player=%d", playerid);
 
     return 1;
 }

@@ -9,6 +9,7 @@ hook OnGameModeInit()
     CEF_RegisterEvent("lsrp:slot", "LSRP_UISlot", Argument_Integer);
     CEF_RegisterEvent("lsrp:play", "LSRP_UIPlay");
     CEF_RegisterEvent("lsrp:classic", "LSRP_UIClassic");
+    CEF_RegisterEvent("lsrp:creator_confirm", "LSRP_CreatorConfirm", Argument_String);
     return 1;
 }
 
@@ -40,7 +41,7 @@ stock UI_SendSnapshot(playerid)
 {
     new username[ACCOUNT_USERNAME_LENGTH], url[768], slotData[160];
     GetPlayerAccountUsername(playerid, username, sizeof username);
-    format(url, sizeof url, "http://cef/lsrp/index.html?v=3#ui=1&stage=%d&rev=%d&username=%s&selected=%d&error=%d",
+    format(url, sizeof url, "http://cef/lsrp/index.html?v=4#ui=1&stage=%d&rev=%d&username=%s&selected=%d&error=%d",
         s_UIStage[playerid], s_UIRevision[playerid], username, s_SelectedCharacterSlot[playerid], s_UIError[playerid]);
     if (s_UIStage[playerid] == UI_SLOTS)
     {
@@ -68,6 +69,7 @@ stock UI_ReportError(playerid, code, const message[])
     s_UIError[playerid] = code;
     s_UIRevision[playerid]++;
     CEF_EmitEvent(playerid, LSRP_BROWSER, "lsrp:error", CEF_STR(message));
+    UI_Notify(playerid, "error", message);
     UI_SendSnapshot(playerid);
     return 1;
 }
@@ -156,6 +158,26 @@ public LSRP_UIPlay(playerid, browserid)
     if (browserid != LSRP_BROWSER) return 0;
     if (!UI_Action(playerid) || s_UIStage[playerid] != UI_SLOTS || !IsPlayerLoggedIn(playerid) || s_CharacterLoaded[playerid]) return 0;
     return CharacterSelector_Play(playerid);
+}
+
+forward LSRP_CreatorConfirm(playerid, browserid, const name[]);
+public LSRP_CreatorConfirm(playerid, browserid, const name[])
+{
+    printf("[GTASA UI] creator confirm player=%d browser=%d stage=%d active=%d", playerid, browserid, s_UIStage[playerid], CharacterCreator_IsActive(playerid));
+    if (browserid != LSRP_BROWSER || !UI_Action(playerid) || s_UIStage[playerid] != UI_CREATOR)
+    {
+        UI_ReportError(playerid, 0, "Trình tạo nhân vật chưa sẵn sàng. Hãy mở lại creator.");
+        return 0;
+    }
+    if (!CharacterCreator_IsActive(playerid))
+    {
+        if (!IsValidCharacterName(name)) { UI_Notify(playerid, "warning", "Tên nhân vật phải có dạng First_Last."); return 0; }
+        printf("[GTASA UI] creator name check begin player=%d name=%s", playerid, name);
+        Character_CheckName(playerid, name);
+        UI_Notify(playerid, "info", "Đang kiểm tra tên nhân vật...");
+        return 1;
+    }
+    return CharacterCreator_Confirm(playerid);
 }
 
 forward LSRP_UIClassic(playerid, browserid);

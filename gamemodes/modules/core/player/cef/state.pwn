@@ -6,6 +6,7 @@
 #define UI_LOGIN (3)
 #define UI_SLOTS (4)
 #define UI_BUSY (5)
+#define UI_CREATOR (6)
 new s_UIStage[MAX_PLAYERS];
 new bool:s_CefReady[MAX_PLAYERS], bool:s_CefBrowser[MAX_PLAYERS], bool:s_CefLoaded[MAX_PLAYERS], bool:s_CefClassic[MAX_PLAYERS];
 new s_CefLastAction[MAX_PLAYERS];
@@ -34,6 +35,13 @@ stock bool:UI_UseCEF(playerid)
     return s_CefReady[playerid] && !s_CefClassic[playerid];
 }
 
+stock UI_Notify(playerid, const type[], const message[])
+{
+    if (!UI_UseCEF(playerid) || !s_CefLoaded[playerid]) return 0;
+    CEF_EmitEvent(playerid, LSRP_BROWSER, "lsrp:notify", CEF_STR(type), CEF_STR(message));
+    return 1;
+}
+
 stock UI_Close(playerid)
 {
     if (s_CefBrowser[playerid])
@@ -56,7 +64,7 @@ stock UI_Show(playerid, stage)
     if (!s_CefBrowser[playerid])
     {
         s_CefBrowser[playerid] = true;
-        CEF_CreateBrowser(playerid, LSRP_BROWSER, "http://cef/lsrp/index.html?v=3", false);
+        CEF_CreateBrowser(playerid, LSRP_BROWSER, "http://cef/lsrp/index.html?v=4", false);
         SetTimerEx("LSRP_UILoadTimeout", 15000, false, "dd", playerid, s_UISession[playerid]);
     }
     else

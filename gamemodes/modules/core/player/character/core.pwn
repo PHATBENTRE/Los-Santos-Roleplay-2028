@@ -87,6 +87,7 @@ public OnCharacterSlotsLoaded(playerid)
 
 public OnCharacterNameCheck(playerid)
 {
+    printf("[GTASA UI] character name check player=%d rows=%d", playerid, cache_num_rows());
     if (!IsPlayerConnected(playerid) ||
         !IsPlayerLoggedIn(playerid))
     {
@@ -95,6 +96,7 @@ public OnCharacterNameCheck(playerid)
 
     if (cache_num_rows() > 0)
     {
+        UI_Notify(playerid, "warning", "Tên nhân vật đã được sử dụng.");
         Character_ShowNameDialog(
             playerid,
             false,
@@ -114,6 +116,7 @@ public OnCharacterNameCheck(playerid)
 
 public OnCharacterCreated(playerid)
 {
+    printf("[GTASA UI] character created callback player=%d insert_id=%d", playerid, cache_insert_id());
     if (!IsPlayerConnected(playerid) ||
         !IsPlayerLoggedIn(playerid))
     {
@@ -124,6 +127,7 @@ public OnCharacterCreated(playerid)
 
     if (characterID == INVALID_CHARACTER_ID)
     {
+        UI_Notify(playerid, "error", "Không thể tạo nhân vật. Hãy thử lại.");
         SendClientMessage(
             playerid,
             COLOR_RED,
@@ -139,6 +143,7 @@ public OnCharacterCreated(playerid)
         COLOR_WHITE,
         "Ten nhan vat da duoc tao. Dang khoi tao ho so..."
     );
+    UI_Notify(playerid, "success", "Tên nhân vật đã được tạo. Đang khởi tạo hồ sơ...");
 
     Character_LoadByID(
         playerid,
