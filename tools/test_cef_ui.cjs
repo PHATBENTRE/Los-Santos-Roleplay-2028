@@ -108,5 +108,5 @@ for (const registration of pawn.matchAll(/CEF_RegisterEvent\("([^"]+)",\s*"([^"]
   assert.equal(params.length, 2 + (args.match(/Argument_/g)||[]).length, `${event}: typed argument count`);
   checked++;
 }
-assert.equal(checked,6);
-console.log('PASS: all six Pawn event callbacks match the omp-cef playerid/browserid ABI');
+assert.equal(checked,7);
+console.log('PASS: all seven Pawn event callbacks match the omp-cef playerid/browserid ABI');
