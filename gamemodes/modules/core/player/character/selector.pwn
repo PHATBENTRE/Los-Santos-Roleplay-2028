@@ -310,6 +310,7 @@ CharacterSelector_Refresh(playerid)
 
 CharacterSelector_OpenUI(playerid)
 {
+    if (UI_Show(playerid, UI_SLOTS)) return 1;
     CharacterSelector_CreateUI(playerid);
 
     s_SelectorVisible[playerid] = true;
@@ -337,6 +338,7 @@ CharacterSelector_OpenUI(playerid)
 
 CharacterSelector_CloseUI(playerid)
 {
+    UI_Close(playerid);
     if (!s_SelectorReady[playerid])
     {
         return 1;
@@ -399,7 +401,8 @@ CharacterSelector_SelectSlot(playerid, slotIndex)
         return 1;
     }
 
-    CharacterSelector_Refresh(playerid);
+    if (UI_UseCEF(playerid)) UI_Show(playerid, UI_SLOTS);
+    else CharacterSelector_Refresh(playerid);
     return 1;
 }
 

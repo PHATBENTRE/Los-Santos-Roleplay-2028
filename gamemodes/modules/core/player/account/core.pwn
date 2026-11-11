@@ -37,6 +37,8 @@ hook OnPlayerAccountCheck(playerid)
         return 1;
     }
 
+    printf("[GTASA UI] account lookup finished player=%d rows=%d", playerid, cache_num_rows());
+
     // No master account exists yet: create one using the username already
     // stored by Account_Check.
     if (cache_num_rows() == 0)
@@ -59,7 +61,18 @@ hook OnPlayerAccountCheck(playerid)
 
 hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
+    if (UI_UseCEF(playerid)) return 0;
+    return Account_HandleResponse(playerid, dialogid, response, listitem, inputtext);
+}
+
+Account_HandleResponse(playerid, dialogid, response, listitem, const inputtext[])
+{
     #pragma unused listitem
+
+    if (IsPlayerLoggedIn(playerid) || s_UIStage[playerid] == UI_BUSY) return 0;
+    if ((dialogid == DIALOG_ACCOUNT_USERNAME && s_UIStage[playerid] != UI_USERNAME) ||
+        (dialogid == DIALOG_REGISTRATION && s_UIStage[playerid] != UI_REGISTER) ||
+        (dialogid == DIALOG_LOGIN && s_UIStage[playerid] != UI_LOGIN)) return 0;
 
     switch (dialogid)
     {
@@ -78,6 +91,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
             }
 
             Account_Check(playerid, inputtext);
+            s_UIStage[playerid] = UI_BUSY;
             return 1;
         }
 
@@ -96,6 +110,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
             }
 
             HashPassword(playerid, inputtext);
+            s_UIStage[playerid] = UI_BUSY;
             return 1;
         }
 
@@ -111,6 +126,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
             new tempHash[BCRYPT_HASH_LENGTH];
             GetPVarString(playerid, "tempPassword", tempHash);
             bcrypt_verify(playerid, "OnPasswordCheck", inputtext, tempHash);
+            s_UIStage[playerid] = UI_BUSY;
             return 1;
         }
     }
@@ -189,6 +205,9 @@ hook OnPasswordCheck(playerid, bool:match)
 
     Account_ShowLoginDialog(playerid);
 
+    if (UI_UseCEF(playerid))
+        UI_ReportError(playerid, 2, "Sai mat khau. Vui long thu lai.");
+
     new const attemptsLeft = MAX_LOGIN_ATTEMPTS - s_PlayerLoginAttempts[playerid];
     new message[96];
     format(message, sizeof(message), "Sai mat khau. Ban con %d lan thu.", attemptsLeft);
@@ -198,6 +217,7 @@ hook OnPasswordCheck(playerid, bool:match)
 
 hook OnPlayerLogin(playerid)
 {
+    UI_Close(playerid);
     Character_LoadSlots(playerid);
     return 1;
 }

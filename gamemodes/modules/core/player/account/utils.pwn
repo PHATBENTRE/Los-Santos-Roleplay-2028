@@ -35,12 +35,13 @@ Account_Reset(playerid)
 // kept separate from the master account username.
 Account_ShowUsernameDialog(playerid, bool:invalid = false)
 {
+    if (UI_Show(playerid, UI_USERNAME)) return 1;
     ShowPlayerDialog(
         playerid,
         DIALOG_ACCOUNT_USERNAME,
         DIALOG_STYLE_INPUT,
-        "LS:RP - Tai khoan",
-        "Nhap ten tai khoan OOC cua ban.\n\nDay la tai khoan chinh, khong phai ten nhan vat.",
+        "GTASA Vietnamese - Dang nhap",
+        "Nhap ten dang nhap cua ban.\n\nTen dang nhap duoc dung chung cho cac nhan vat.",
         "Tiep tuc",
         "Thoat"
     );
@@ -99,6 +100,7 @@ Account_Check(playerid, const username[])
 // Shows the registration dialog to the player.
 Account_ShowRegistrationDialog(playerid, bool:badpass = false)
 {
+    if (UI_Show(playerid, UI_REGISTER)) return 1;
     ShowPlayerDialog(
         playerid,
         DIALOG_REGISTRATION,
@@ -120,6 +122,7 @@ Account_ShowRegistrationDialog(playerid, bool:badpass = false)
 // Shows the login dialog to the player.
 Account_ShowLoginDialog(playerid)
 {
+    if (UI_Show(playerid, UI_LOGIN)) return 1;
     new username[ACCOUNT_USERNAME_LENGTH], caption[64];
     GetPlayerAccountUsername(playerid, username, sizeof(username));
     format(caption, sizeof(caption), "Dang nhap - %s", username);
