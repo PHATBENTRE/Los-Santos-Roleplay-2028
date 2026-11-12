@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://cef; script-src 'sha256-N8vILRe9Os34c75Ro1ZfBYMoq23B8whkrr0Z+LJSpcI='; style-src 'self' http://cef; img-src 'self' http://cef; object-src 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://cef; script-src 'sha256-iTeBPTFZcS7xisUBOVXdqQ44MBGyloP2sHgtWHN8jnY='; style-src 'self' http://cef; img-src 'self' http://cef; object-src 'none'; base-uri 'none'">
   <title>GTASA Vietnamese</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -71,6 +71,8 @@
 <script>
 (function () {
 'use strict';
+document.addEventListener('contextmenu',event=>event.preventDefault(),true);
+document.addEventListener('auxclick',event=>{ if(event.button===2) event.preventDefault(); },true);
 const $ = (id) => document.getElementById(id);
 let bridge;
 let attached = false;
@@ -130,11 +132,11 @@ function applySnapshot() {
     8: 'Chưa thể xác nhận lưu. Hãy kết nối lại để kiểm tra nhân vật trước khi thử tiếp.',
     9: 'Ô nhân vật không còn hợp lệ. Hãy mở lại màn chọn nhân vật.'
   };
-  if (errors[data.get('error')]) {
+  if (next !== 0 && next !== 5 && errors[data.get('error')]) {
     busy(false);
     const message = errors[data.get('error')];
     $(next === 6 ? 'creator-error' : 'error').textContent = message;
-    notify('error', message);
+    notify('error', message, next >= 1 && next <= 3 ? 'auth-error' : '');
   }
   return true;
 }
@@ -154,8 +156,9 @@ function showQueuedNotifications() {
   const host = $('notifications');
   if (!host) return;
   while (host.children.length < 3 && notificationQueue.length) {
-  const { type, message } = notificationQueue.shift();
+  const { type, message, source } = notificationQueue.shift();
   const item = document.createElement('div');
+  item.notifySource = source;
   const kind = type || 'info';
   const meta = { info: ['i', 'THÔNG TIN'], success: ['✓', 'THÀNH CÔNG'], warning: ['!', 'CẢNH BÁO'], error: ['×', 'LỖI'] }[kind] || ['i', 'THÔNG TIN'];
   item.className = `notify notify-${kind}`;
@@ -183,8 +186,19 @@ function showQueuedNotifications() {
   requestAnimationFrame(tick);
   }
 }
-function notify(type, message) {
-  notificationQueue.push({ type, message });
+function clearNotifications(source) {
+  let removed = false;
+  for (let i = notificationQueue.length - 1; i >= 0; i--)
+    if (notificationQueue[i].source === source) { notificationQueue.splice(i, 1); removed = true; }
+  const host = $('notifications');
+  if (!host) return;
+  for (const item of Array.from(host.children))
+    if (item.notifySource === source) { item.remove(); removed = true; }
+  showQueuedNotifications();
+  if (removed && !host.children.length && !notificationQueue.length && stage === 0) emit('lsrp:notify_drained');
+}
+function notify(type, message, source = '') {
+  notificationQueue.push({ type, message, source });
   showQueuedNotifications();
   if (type === 'info' && String(message).includes('kiểm tra tên')) setCreatorBusy(false);
   if (type === 'info' && String(message).includes('kiểm tra tên')) clearTimeout(window.creatorSaveTimer);
@@ -218,6 +232,7 @@ function screen(next, username) {
   const characters = $('characters');
   stage = Number(next);
   next = stage;
+  if (next === 0 || next === 4 || next === 6) clearNotifications('auth-error');
   busy(next === 5);
   const showCharacters = next === 4;
   const showCreator = next === 6;
@@ -374,7 +389,7 @@ function attach() {
   if (attached) return true;
   listen('lsrp:screen', (next, username) => { if (!navigationState) { acknowledged = true; screen(next, username); } });
   listen('lsrp:character', (...args) => { if (!navigationState) character(...args); });
-  listen('lsrp:error', (message) => { clearTimeout(responseTimer); busy(false); $('error').textContent = message; });
+  listen('lsrp:error', (message) => { if (stage < 1 || stage > 3) return; clearTimeout(responseTimer); busy(false); $('error').textContent = message; });
   listen('lsrp:notify', (type, message) => notify(type, message));
   attached = true;
   emit('lsrp:ready');

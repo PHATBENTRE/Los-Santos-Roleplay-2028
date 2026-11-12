@@ -10,6 +10,9 @@
   --surface: #0c1721;
   --ease: cubic-bezier(.22, .8, .25, 1);
 }
+* { -webkit-user-select: none; user-select: none; }
+input, textarea, select { -webkit-user-select: text; user-select: text; }
+img { -webkit-user-drag: none; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { min-height: 100%; background: transparent; }

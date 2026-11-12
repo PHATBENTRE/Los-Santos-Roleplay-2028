@@ -13,6 +13,7 @@ class Element {
 }
 const elements = new Map();
 const events = new Map();
+const documentEvents = new Map();
 const emitted=[];
 const browserEvents = new Map();
 const timers = new Map();
@@ -20,7 +21,7 @@ let timerId = 0;
 const context = {
   performance: {now:()=>0},
   requestAnimationFrame(fn) { context.frame = fn; (context.frames ||= []).push(fn); },
-  document: {getElementById(id) { if(!elements.has(id)) elements.set(id,new Element()); return elements.get(id); }, createElement() {return new Element();}},
+  document: {getElementById(id) { if(!elements.has(id)) elements.set(id,new Element()); return elements.get(id); }, createElement() {return new Element();}, addEventListener:(name,fn)=>documentEvents.set(name,fn)},
   window: {location:{hash:''},addEventListener:(name,fn)=>browserEvents.set(name,fn),cef:{on:(name,fn)=>events.set(name,fn),emit:(...args)=>emitted.push(args)}},
   URLSearchParams,
   setTimeout(fn) { timers.set(++timerId,fn); return timerId; },
@@ -35,6 +36,9 @@ assert.ok(html.includes(`'sha256-${createHash('sha256').update(app).digest('base
 assert.ok(html.includes('src="logo.png"'));
 assert.ok(!html.includes('OOC'),'no OOC label remains in the page');
 vm.runInNewContext(app,context);
+let contextMenuBlocked=false;
+documentEvents.get('contextmenu')({preventDefault(){contextMenuBlocked=true;}});
+assert.equal(contextMenuBlocked,true,'right click menu is disabled on login and character pages');
 const get=id=>elements.get(id);
 assert.equal(emitted[0][0],'lsrp:ready');
 events.get('lsrp:screen')(1,'');
@@ -89,13 +93,26 @@ browserEvents.get('hashchange')();
 assert.equal(get('value').type,'password');
 assert.equal(get('submit').disabled,false);
 context.window.location.hash='#ui=1&stage=3&rev=3&username=Transport_Test&selected=0&error=2';
+const notificationsBeforePasswordError=context.document.getElementById('notifications').children.length;
 browserEvents.get('hashchange')();
 assert.match(get('error').textContent,/chưa đúng/);
-context.window.location.hash='#ui=1&stage=4&rev=4&username=Transport_Test&selected=1&error=0&n0=Test_Character&l0=2&k0=26&e0=1';
+assert.equal(get('notifications').children.length,notificationsBeforePasswordError+1,'wrong password creates one toast from the snapshot');
+events.get('lsrp:error')('Sai mat khau. Vui long thu lai.');
+assert.equal(get('notifications').children.length,notificationsBeforePasswordError+1,'error event only updates the form');
+context.window.location.hash='#ui=1&stage=5&rev=4&username=Transport_Test&selected=0&error=2';
+browserEvents.get('hashchange')();
+assert.equal(get('notifications').children.length,notificationsBeforePasswordError+1,'busy snapshot never replays the old password error');
+context.window.location.hash='#ui=1&stage=0&rev=5&username=Transport_Test&selected=0&error=2';
+browserEvents.get('hashchange')();
+assert.equal(get('notifications').children.length,notificationsBeforePasswordError,'successful login removes the earlier password error toast');
+context.window.location.hash='#ui=1&stage=4&rev=6&username=Transport_Test&selected=1&error=0&n0=Test_Character&l0=2&k0=26&e0=1';
 browserEvents.get('hashchange')();
 assert.equal(get('characters').hidden,false);
 assert.equal(get('slots').children[0].children[2].textContent,'Test Character');
 assert.equal(get('play').disabled,false);
+const errorAfterLogin=get('error').textContent;
+events.get('lsrp:error')('Sai mat khau. Vui long thu lai.');
+assert.equal(get('error').textContent,errorAfterLogin,'late auth error event cannot affect the character selector');
 const titleBefore=get('title').textContent;
 events.get('lsrp:screen')(1,'Old_State');
 assert.equal(get('title').textContent,titleBefore,'late event cannot override navigation state');
@@ -104,6 +121,11 @@ console.log('PASS: navigation-only ready, submit, login, wrong-password and char
 // omp-cef v1.4.0 prepends playerid AND browserid before registered event args.
 // Check the Pawn boundary too: a browser-only mock cannot catch an ABI mismatch.
 const pawn = readFileSync(join(__dirname,'../gamemodes/modules/core/player/cef/core.pwn'),'utf8');
+const statePawn = readFileSync(join(__dirname,'../gamemodes/modules/core/player/cef/state.pwn'),'utf8');
+assert.doesNotMatch(pawn.match(/stock UI_ReportError\([\s\S]*?\n\}/)[0],/UI_Notify\(/,'server does not emit a second toast for snapshot errors');
+assert.match(pawn,/s_UIError\[playerid\] = 0;\s*Account_HandleResponse/,'new login attempt clears the previous error');
+assert.match(pawn,/s_UIStage\[playerid\] == UI_BUSY \|\| s_UIStage\[playerid\] == 0 \? 0 : s_UIError\[playerid\]/,'busy and closed snapshots cannot carry stale errors');
+assert.match(statePawn,/stock UI_Close\([\s\S]*?s_UIStage\[playerid\] = 0;\s*s_UIError\[playerid\] = 0;/,'closing auth clears its error state');
 let checked = 0;
 for (const registration of pawn.matchAll(/CEF_RegisterEvent\("([^"]+)",\s*"([^"]+)"([^;]*)\);/g)) {
   const [, event, callback, args] = registration;

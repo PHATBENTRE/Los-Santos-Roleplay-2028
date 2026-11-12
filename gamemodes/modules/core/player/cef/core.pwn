@@ -45,7 +45,8 @@ stock UI_SendSnapshot(playerid)
     new username[ACCOUNT_USERNAME_LENGTH], url[768], slotData[160];
     GetPlayerAccountUsername(playerid, username, sizeof username);
     format(url, sizeof url, "http://cef/lsrp/index.html?v=4#ui=1&stage=%d&rev=%d&username=%s&selected=%d&error=%d",
-        s_UIStage[playerid], s_UIRevision[playerid], username, s_SelectedCharacterSlot[playerid], s_UIError[playerid]);
+        s_UIStage[playerid], s_UIRevision[playerid], username, s_SelectedCharacterSlot[playerid],
+        s_UIStage[playerid] == UI_BUSY || s_UIStage[playerid] == 0 ? 0 : s_UIError[playerid]);
     if (s_UIToastRevision[playerid] > 0 && s_UIToastUntil[playerid] > GetTickCount())
     {
         format(slotData, sizeof slotData, "&toast=%d", s_UIToastRevision[playerid]);
@@ -91,7 +92,6 @@ stock UI_ReportError(playerid, code, const message[])
     s_UIError[playerid] = code;
     s_UIRevision[playerid]++;
     CEF_EmitEvent(playerid, LSRP_BROWSER, "lsrp:error", CEF_STR(message));
-    UI_Notify(playerid, "error", message);
     UI_SendSnapshot(playerid);
     return 1;
 }
@@ -156,6 +156,7 @@ public LSRP_UISubmit(playerid, browserid, const value[])
         return 0;
     }
     format(input, sizeof input, "%s", value);
+    s_UIError[playerid] = 0;
     Account_HandleResponse(playerid, dialogid, 1, 0, input);
     s_UIRevision[playerid]++;
     LSRP_UIRender(playerid);

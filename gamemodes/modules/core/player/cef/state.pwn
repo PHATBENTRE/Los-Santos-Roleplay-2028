@@ -79,6 +79,7 @@ stock UI_Close(playerid)
     if (s_UIStage[playerid] == 0) return 1;
     s_UIHideRequest[playerid]++;
     s_UIStage[playerid] = 0;
+    s_UIError[playerid] = 0;
     s_UIRevision[playerid]++;
     if (s_CefLoaded[playerid]) CallLocalFunction("LSRP_UIRender", "d", playerid);
     if (s_CefBrowser[playerid])
