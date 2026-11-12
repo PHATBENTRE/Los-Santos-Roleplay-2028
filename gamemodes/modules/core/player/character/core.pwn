@@ -511,6 +511,7 @@ hook OnPlayerDisconnect(playerid, reason)
 
     if (s_CharacterLoaded[playerid])
     {
+        Inventory_SaveWeaponAmmo(playerid, true);
         Character_Save(playerid);
     }
 

@@ -22,7 +22,10 @@ compiles the gamemode before starting, and launches `omp-server.exe`.
 1. Import `database_structure.sql` to create the `lsrp`
    database and master-account table.
 2. Apply every file in `database/migrations` in filename order,
-   from `001` through `008`.
+   from `001` through `014`. Migration `013` adds the remaining rounds and
+   equipped state for each firearm item. Apply migration `014` once with the
+   server stopped before starting the updated gamemode; it maps existing ammo
+   stacks to the four new groups without changing their instance IDs.
 3. Copy `mysql.ini.example` to `mysql.ini` and set the hostname, username,
    database, and `server_port`. The file must be in the server root beside
    `omp-server.exe`.
@@ -33,6 +36,19 @@ compiles the gamemode before starting, and launches `omp-server.exe`.
 
 The gamemode uses `mysql_connect_file()` to read `mysql.ini`.
 `mysql.ini` is local configuration and is excluded from Git.
+
+## Inventory weapons
+
+Use `/inv` after selecting a character. An administrator can grant test items
+with `/giveitem [playerid] [type] [amount]`. Item types `4` to `7` and `12` are
+unique firearms (9mm, Desert Eagle, Shotgun, M4, MP5). Types `8` to `11` are
+pistol, shotgun, rifle, and SMG ammunition. The 9mm and Desert Eagle share
+pistol rounds. Open a gun to equip or remove it, then
+choose **Nạp đạn** on the equipped gun or on the matching ammunition stack.
+Loaded rounds are stored per firearm and restored after spawning. A gun can be
+equipped with zero rounds; it becomes usable after reloading. The inventory
+allows one gun per game weapon slot, so the 9mm and Desert Eagle replace each
+other in the handgun slot.
 
 ## open.mp configuration
 

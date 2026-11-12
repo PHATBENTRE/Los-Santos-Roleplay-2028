@@ -114,6 +114,8 @@
 // Start with the small load/list flow and add features one at a time.
 #include "modules/system/vehicles/simple.pwn"
 #include "modules/system/vehicles/controls.pwn"
+#include "modules/system/inventory/core.pwn"
+#include "modules/system/inventory/weapons.pwn"
 
 // This fallback must remain after every command module.
 #include "modules/system/help/unknown.pwn"

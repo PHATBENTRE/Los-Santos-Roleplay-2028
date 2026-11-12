@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Túi đồ · GTASA Vietnamese</title>
+  <style>html,body{margin:0;min-height:100%;background:#081319;color:#eef7fd}</style>
+  <link rel="stylesheet" href="inventory.css">
+</head>
+<body>
+  <div class="inventory-shell">
+    <aside class="equipment-panel">
+      <div class="equipment-brand"><img src="logo.png" alt="GTASA Vietnamese" width="174" height="62"></div>
+      <div class="equipment-heading"><span class="eyebrow">NHÂN VẬT</span><h2>Trang bị</h2><p>Những gì bạn đang mang theo.</p></div>
+      <div class="equipment-content">
+        <span class="equipment-caption">NGOẠI HÌNH</span>
+        <div class="skin-equipment" title="Skin đang sử dụng"><img id="equip-skin-image" class="equip-skin-image" alt=""><span><small>SKIN ĐANG DÙNG</small><strong id="equip-skin-name">—</strong></span></div>
+        <span class="equipment-caption">VŨ KHÍ</span>
+        <div class="equipment-grid" aria-label="Vũ khí đang trang bị">
+          <div class="equipment-slot" id="weapon-2" title="Súng ngắn"><small>NGẮN</small><strong id="weapon-2-name">Trống</strong><em id="weapon-2-ammo"></em></div>
+          <div class="equipment-slot" id="weapon-3" title="Shotgun"><small>SHOTGUN</small><strong id="weapon-3-name">Trống</strong><em id="weapon-3-ammo"></em></div>
+          <div class="equipment-slot" id="weapon-4" title="Tiểu liên"><small>TIỂU LIÊN</small><strong id="weapon-4-name">Trống</strong><em id="weapon-4-ammo"></em></div>
+          <div class="equipment-slot" id="weapon-5" title="Súng trường"><small>TRƯỜNG</small><strong id="weapon-5-name">Trống</strong><em id="weapon-5-ammo"></em></div>
+          <div class="equipment-slot" id="weapon-6" title="Súng bắn tỉa"><small>TỈA</small><strong id="weapon-6-name">Trống</strong><em id="weapon-6-ammo"></em></div>
+          <div class="equipment-slot" id="weapon-7" title="Vũ khí hạng nặng"><small>NẶNG</small><strong id="weapon-7-name">Trống</strong><em id="weapon-7-ammo"></em></div>
+        </div>
+      </div>
+      <div class="equipment-foot">TRANG BỊ HIỆN TẠI</div>
+    </aside>
+    <aside class="side-panel">
+      <div class="side-brand"><span class="eyebrow">HỒ SƠ NHÂN VẬT</span><button id="close" type="button" aria-label="Đóng túi đồ">×</button></div>
+      <div class="identity"><span class="eyebrow">HỒ SƠ NHÂN VẬT</span><h2 id="character">Nhân vật</h2><div class="money-row"><div><small>TIỀN MẶT</small><strong id="cash">$0</strong></div><div><small>NGÂN HÀNG</small><strong id="bank">$0</strong></div></div><p id="skin-label">Ngoại hình hiện tại</p></div>
+      <div class="character-stage">
+        <img id="character-skin" alt="Skin nhân vật" width="300" height="440"><span class="stage-glow"></span>
+      </div>
+      <div class="side-footer"><span><kbd>ESC</kbd> ĐÓNG TÚI ĐỒ</span></div>
+      <div id="ground-slots" hidden></div><span id="ground-count" hidden></span><span id="context-label" hidden></span><span id="context-title" hidden></span>
+    </aside>
+    <main class="inventory-main">
+      <header><div class="title"><div><span class="eyebrow">VẬT PHẨM TRÊN NGƯỜI</span><h1>Túi đồ</h1></div></div><span id="count" class="capacity">0 / 50 Ô</span></header>
+      <div class="toolbar"><span class="toolbar-note">Chọn vật phẩm để xem thao tác</span><span class="toolbar-hint"><kbd>ESC</kbd> ĐÓNG</span></div>
+      <div id="slots" class="slot-grid main-grid"></div>
+      <div id="item-menu" class="item-menu" hidden>
+        <div class="menu-head"><img id="menu-image" src="" alt=""><div><strong id="menu-title"></strong><span id="menu-quantity"></span></div><button id="menu-close" type="button" aria-label="Đóng bảng vật phẩm">×</button></div>
+        <div class="menu-actions"><button id="menu-use" type="button">Sử dụng</button><button id="menu-reload" type="button" hidden>Nạp đạn</button><button id="menu-transfer" type="button">Vứt bỏ</button><button id="menu-reorder" type="button">Di chuyển</button><button id="menu-info" type="button">Thông tin</button></div>
+        <div id="detail" class="detail" hidden></div>
+      </div>
+      <footer><span>KÉO THẢ ĐỂ SẮP XẾP VẬT PHẨM</span></footer>
+    </main>
+  </div>
+  <script src="inventory.js?v=2"></script>
+</body>
+</html>
