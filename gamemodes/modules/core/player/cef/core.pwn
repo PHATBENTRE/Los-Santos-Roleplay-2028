@@ -9,7 +9,10 @@ hook OnGameModeInit()
     CEF_RegisterEvent("lsrp:slot", "LSRP_UISlot", Argument_Integer);
     CEF_RegisterEvent("lsrp:play", "LSRP_UIPlay");
     CEF_RegisterEvent("lsrp:classic", "LSRP_UIClassic");
-    CEF_RegisterEvent("lsrp:creator_confirm", "LSRP_CreatorConfirm", Argument_String);
+    CEF_RegisterEvent("lsrp:notify_drained", "LSRP_UINotifyDrained");
+    CEF_RegisterEvent("lsrp:creator_confirm", "LSRP_CreatorConfirm", Argument_String,
+        Argument_Integer, Argument_Integer, Argument_Integer, Argument_Integer,
+        Argument_Integer, Argument_Integer, Argument_Integer, Argument_Integer, Argument_Integer);
     return 1;
 }
 
@@ -43,6 +46,11 @@ stock UI_SendSnapshot(playerid)
     GetPlayerAccountUsername(playerid, username, sizeof username);
     format(url, sizeof url, "http://cef/lsrp/index.html?v=4#ui=1&stage=%d&rev=%d&username=%s&selected=%d&error=%d",
         s_UIStage[playerid], s_UIRevision[playerid], username, s_SelectedCharacterSlot[playerid], s_UIError[playerid]);
+    if (s_UIToastRevision[playerid] > 0 && s_UIToastUntil[playerid] > GetTickCount())
+    {
+        format(slotData, sizeof slotData, "&toast=%d", s_UIToastRevision[playerid]);
+        strcat(url, slotData, sizeof url);
+    }
     if (s_UIStage[playerid] == UI_SLOTS)
     {
         for (new slot; slot < MAX_CHARACTER_SLOTS; slot++)
@@ -57,9 +65,23 @@ stock UI_SendSnapshot(playerid)
             strcat(url, slotData, sizeof url);
         }
     }
+    if (s_UIStage[playerid] == UI_CREATOR)
+    {
+        format(slotData, sizeof slotData, "&cbusy=%d&cactive=%d&cname=%s",
+            s_UICreatorPending[playerid], CharacterCreator_IsActive(playerid),
+            CharacterCreator_IsActive(playerid) ? s_CharacterName[playerid] : s_UICreatorName[playerid]);
+        strcat(url, slotData, sizeof url);
+        if (CharacterCreator_IsActive(playerid))
+        {
+            format(slotData, sizeof slotData, "&cg=%d&cd=%d&cm=%d&cy=%d&ct=%d&cv=%d&ch=%d&cw=%d&cb=%d",
+                s_CharacterGender[playerid], s_CharacterBirthDay[playerid], s_CharacterBirthMonth[playerid],
+                s_CharacterBirthYear[playerid], s_CharacterSkinTone[playerid], s_CharacterVoice[playerid],
+                s_CharacterHeight[playerid], s_CharacterWeight[playerid], s_CharacterBirthPlace[playerid]);
+            strcat(url, slotData, sizeof url);
+        }
+    }
     if (!strcmp(url, s_UILastURL[playerid])) return 1;
     format(s_UILastURL[playerid], 768, "%s", url);
-    printf("[GTASA UI] state sent via navigation player=%d stage=%d rev=%d", playerid, s_UIStage[playerid], s_UIRevision[playerid]);
     CEF_LoadUrl(playerid, LSRP_BROWSER, url);
     return 1;
 }
@@ -92,18 +114,25 @@ public LSRP_UIReady(playerid, browserid)
 {
     if (browserid != LSRP_BROWSER) return 0;
     if (!s_CefBrowser[playerid] || !UI_UseCEF(playerid)) return 0;
-    if (!s_CefLoaded[playerid]) printf("[GTASA UI] page ready player=%d browser=%d stage=%d", playerid, browserid, s_UIStage[playerid]);
     s_CefLoaded[playerid] = true;
+    if (!s_UIStage[playerid]) return 1;
     CEF_SetBrowserVisible(playerid, LSRP_BROWSER, true);
     CEF_FocusBrowser(playerid, LSRP_BROWSER, true);
     return LSRP_UIRender(playerid);
 }
 
+forward LSRP_UINotifyDrained(playerid, browserid);
+public LSRP_UINotifyDrained(playerid, browserid)
+{
+    if (browserid != LSRP_BROWSER || !IsPlayerConnected(playerid) || s_UIStage[playerid] != 0)
+        return 0;
+    if (s_CefBrowser[playerid]) CEF_SetBrowserVisible(playerid, LSRP_BROWSER, false);
+    return 1;
+}
+
 forward LSRP_UISubmit(playerid, browserid, const value[]);
 public LSRP_UISubmit(playerid, browserid, const value[])
 {
-    // Log transport/state only. Never log submitted credentials.
-    printf("[GTASA UI] submit player=%d browser=%d stage=%d ready=%d", playerid, browserid, s_UIStage[playerid], s_CefLoaded[playerid]);
     if (browserid != LSRP_BROWSER) return 0;
     if (!UI_Action(playerid) || IsPlayerLoggedIn(playerid)) return 0;
     new dialogid;
@@ -160,24 +189,122 @@ public LSRP_UIPlay(playerid, browserid)
     return CharacterSelector_Play(playerid);
 }
 
-forward LSRP_CreatorConfirm(playerid, browserid, const name[]);
-public LSRP_CreatorConfirm(playerid, browserid, const name[])
+stock UI_CreatorFail(playerid, code)
 {
-    printf("[GTASA UI] creator confirm player=%d browser=%d stage=%d active=%d", playerid, browserid, s_UIStage[playerid], CharacterCreator_IsActive(playerid));
-    if (browserid != LSRP_BROWSER || !UI_Action(playerid) || s_UIStage[playerid] != UI_CREATOR)
+    if (!s_UICreatorPending[playerid] && s_UIError[playerid] == code) return 1;
+    if (code == 8) printf("[GTASA UI] creator save failed player=%d", playerid);
+    s_UICreatorPending[playerid] = false;
+    s_CreatorSaving[playerid] = false;
+    s_UIError[playerid] = code;
+    s_UIRevision[playerid]++;
+    return UI_SendSnapshot(playerid);
+}
+
+stock bool:UI_CreatorRequestValid(playerid, session, request)
+{
+    return IsPlayerConnected(playerid) && IsPlayerLoggedIn(playerid) &&
+        s_UISession[playerid] == session && s_UICreatorRequest[playerid] == request &&
+        s_UICreatorPending[playerid];
+}
+
+forward LSRP_CreatorConfirm(playerid, browserid, const name[], gender, day, month, year, tone, voice, height, weight, birthplace);
+public LSRP_CreatorConfirm(playerid, browserid, const name[], gender, day, month, year, tone, voice, height, weight, birthplace)
+{
+    if (browserid != LSRP_BROWSER || !IsPlayerLoggedIn(playerid) || !UI_UseCEF(playerid) ||
+        s_UIStage[playerid] != UI_CREATOR) return 0;
+    if (s_UICreatorPending[playerid]) return UI_SendSnapshot(playerid);
+    if (!IsValidCharacterName(name)) return UI_CreatorFail(playerid, 5);
+    // Accept any calendar year (no roleplay age restriction).
+    if (year < 1 || year > 9999 || month < 1 || month > 12 || day < 1 ||
+        day > Creator_GetDaysInMonth(month, year)) return UI_CreatorFail(playerid, 6);
+    if (gender < 0 || gender > 1 || tone < 0 || tone > 2 || voice < 0 || voice > 3 ||
+        height < 150 || height > 210 || weight < 45 || weight > 150 || birthplace < 0 || birthplace > 3)
+        return UI_CreatorFail(playerid, 7);
+    new slot = s_SelectedCharacterSlot[playerid];
+    if (slot < 1 || slot > MAX_CHARACTER_SLOTS ||
+        (s_CharacterLoaded[playerid] && (!s_CreatorActive[playerid] || s_CharacterCreated[playerid])))
+        return UI_CreatorFail(playerid, 9);
+    if (s_CreatorActive[playerid] && strcmp(name, s_CharacterName[playerid]))
+        return UI_CreatorFail(playerid, 9);
+
+    s_UICreatorProfile[playerid][cpGender] = gender;
+    s_UICreatorProfile[playerid][cpDay] = day;
+    s_UICreatorProfile[playerid][cpMonth] = month;
+    s_UICreatorProfile[playerid][cpYear] = year;
+    s_UICreatorProfile[playerid][cpTone] = tone;
+    s_UICreatorProfile[playerid][cpVoice] = voice;
+    s_UICreatorProfile[playerid][cpHeight] = height;
+    s_UICreatorProfile[playerid][cpWeight] = weight;
+    s_UICreatorProfile[playerid][cpBirthplace] = birthplace;
+    format(s_UICreatorName[playerid], 25, "%s", name);
+    s_UICreatorSlot[playerid] = slot;
+    s_UICreatorPending[playerid] = true;
+    s_UICreatorRequest[playerid]++;
+    s_UIError[playerid] = 0;
+    s_UIRevision[playerid]++;
+    UI_SendSnapshot(playerid);
+    SetTimerEx("LSRP_CreatorTimeout", 12000, false, "ddd", playerid, s_UISession[playerid], s_UICreatorRequest[playerid]);
+
+    if (s_CreatorActive[playerid])
     {
-        UI_ReportError(playerid, 0, "Trình tạo nhân vật chưa sẵn sàng. Hãy mở lại creator.");
-        return 0;
+        s_CharacterGender[playerid] = gender;
+        s_CharacterBirthDay[playerid] = day;
+        s_CharacterBirthMonth[playerid] = month;
+        s_CharacterBirthYear[playerid] = year;
+        s_CharacterSkinTone[playerid] = tone;
+        s_CharacterVoice[playerid] = voice;
+        s_CharacterHeight[playerid] = height;
+        s_CharacterWeight[playerid] = weight;
+        s_CharacterBirthPlace[playerid] = birthplace;
+        s_CreatorSkinIndex[playerid] = random(CREATOR_SKINS_PER_GROUP);
+        Creator_ApplySkin(playerid);
+        return CharacterCreator_Confirm(playerid);
     }
-    if (!CharacterCreator_IsActive(playerid))
-    {
-        if (!IsValidCharacterName(name)) { UI_Notify(playerid, "warning", "Tên nhân vật phải có dạng First_Last."); return 0; }
-        printf("[GTASA UI] creator name check begin player=%d name=%s", playerid, name);
-        Character_CheckName(playerid, name);
-        UI_Notify(playerid, "info", "Đang kiểm tra tên nhân vật...");
-        return 1;
-    }
-    return CharacterCreator_Confirm(playerid);
+
+    new query[256];
+    mysql_format(g_DatabaseHandle, query, sizeof query,
+        "SELECT `character_id` FROM `player_characters` WHERE `name`='%e' OR (`account_id`=%d AND `slot`=%d) LIMIT 1;",
+        name, GetPlayerAccountID(playerid), slot);
+    if (!mysql_tquery(g_DatabaseHandle, query, "LSRP_CreatorNameChecked", "ddd", playerid,
+        s_UISession[playerid], s_UICreatorRequest[playerid])) return UI_CreatorFail(playerid, 8);
+    return 1;
+}
+
+forward LSRP_CreatorNameChecked(playerid, session, request);
+public LSRP_CreatorNameChecked(playerid, session, request)
+{
+    if (!UI_CreatorRequestValid(playerid, session, request)) return 0;
+    if (cache_num_rows()) return UI_CreatorFail(playerid, 4);
+    new query[1200];
+    new skin = g_CreatorSkins[s_UICreatorProfile[playerid][cpGender]][s_UICreatorProfile[playerid][cpTone]][random(CREATOR_SKINS_PER_GROUP)];
+    mysql_format(g_DatabaseHandle, query, sizeof query,
+        "INSERT IGNORE INTO `player_characters` (`account_id`,`slot`,`name`,`skin`,`cash`,`bank`,`level`,`health`,`armour`,`pos_x`,`pos_y`,`pos_z`,`pos_a`,`interior_id`,`virtual_world`,`character_created`,`gender`,`birth_day`,`birth_month`,`birth_year`,`skin_tone`,`voice`,`height_cm`,`weight_kg`,`birth_place`) VALUES (%d,%d,'%e',%d,%d,%d,%d,100.0,0.0,%f,%f,%f,%f,0,0,1,%d,%d,%d,%d,%d,%d,%d,%d,%d);",
+        GetPlayerAccountID(playerid), s_UICreatorSlot[playerid], s_UICreatorName[playerid], skin,
+        DEFAULT_CHARACTER_CASH, DEFAULT_CHARACTER_BANK, DEFAULT_CHARACTER_LEVEL,
+        GANTON_SPAWN_X, GANTON_SPAWN_Y, GANTON_SPAWN_Z, GANTON_SPAWN_A,
+        s_UICreatorProfile[playerid][cpGender], s_UICreatorProfile[playerid][cpDay], s_UICreatorProfile[playerid][cpMonth],
+        s_UICreatorProfile[playerid][cpYear], s_UICreatorProfile[playerid][cpTone], s_UICreatorProfile[playerid][cpVoice],
+        s_UICreatorProfile[playerid][cpHeight], s_UICreatorProfile[playerid][cpWeight], s_UICreatorProfile[playerid][cpBirthplace]);
+    if (!mysql_tquery(g_DatabaseHandle, query, "LSRP_CreatorInserted", "ddd", playerid, session, request))
+        return UI_CreatorFail(playerid, 8);
+    return 1;
+}
+
+forward LSRP_CreatorInserted(playerid, session, request);
+public LSRP_CreatorInserted(playerid, session, request)
+{
+    if (!UI_CreatorRequestValid(playerid, session, request)) return 0;
+    new id = cache_insert_id();
+    if (id <= 0 || cache_affected_rows() != 1) return UI_CreatorFail(playerid, 4);
+    // Keep cbusy set until the character load finishes; the UI must not submit twice.
+    return Character_LoadByID(playerid, id);
+}
+
+forward LSRP_CreatorTimeout(playerid, session, request);
+public LSRP_CreatorTimeout(playerid, session, request)
+{
+    if (!UI_CreatorRequestValid(playerid, session, request)) return 0;
+    return UI_CreatorFail(playerid, 8);
 }
 
 forward LSRP_UIClassic(playerid, browserid);
@@ -189,6 +316,7 @@ public LSRP_UIClassic(playerid, browserid)
 
 UI_Classic(playerid)
 {
+    if (s_UICreatorPending[playerid]) return 0;
     new stage = s_UIStage[playerid];
     UI_Close(playerid);
     s_CefClassic[playerid] = true;
@@ -199,13 +327,17 @@ UI_Classic(playerid)
         case UI_LOGIN: Account_ShowLoginDialog(playerid);
         case UI_SLOTS: CharacterSelector_OpenUI(playerid);
         case UI_BUSY: s_UIStage[playerid] = UI_BUSY;
+        case UI_CREATOR:
+        {
+            if (s_CreatorActive[playerid]) Creator_ShowUI(playerid);
+            else Character_ShowNameDialog(playerid);
+        }
     }
     return 1;
 }
 
 public OnCefReady(playerid)
 {
-    printf("[GTASA UI] resources ready player=%d stage=%d", playerid, s_UIStage[playerid]);
     s_CefReady[playerid] = true;
     // Upgrade only an idle username prompt; never interrupt a database request or creator.
     if (s_UIStage[playerid] == UI_USERNAME && !IsPlayerLoggedIn(playerid)) UI_Show(playerid, UI_USERNAME);

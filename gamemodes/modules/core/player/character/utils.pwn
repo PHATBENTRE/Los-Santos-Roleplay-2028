@@ -294,7 +294,7 @@ Character_ShowNameDialog(
     if (UI_UseCEF(playerid))
     {
         UI_Show(playerid, UI_CREATOR);
-        if (invalid) UI_Notify(playerid, "warning", taken ? "Tên nhân vật đã được sử dụng." : "Tên nhân vật không hợp lệ.");
+        if (invalid || taken) UI_CreatorFail(playerid, taken ? 4 : 5);
         return 1;
     }
     ShowPlayerDialog(
@@ -393,7 +393,6 @@ Character_CheckName(playerid, const name[])
     );
 
     UI_Notify(playerid, "info", "Đang kiểm tra tên nhân vật với máy chủ...");
-    printf("[GTASA UI] character name query queued player=%d", playerid);
 
     return 1;
 }
@@ -463,9 +462,10 @@ Character_LoadByID(playerid, characterID)
     mysql_tquery(
         g_DatabaseHandle,
         query,
-        "OnCharacterLoaded",
-        "d",
-        playerid
+        "Character_LoadResult",
+        "dd",
+        playerid,
+        s_UISession[playerid]
     );
 
     return 1;

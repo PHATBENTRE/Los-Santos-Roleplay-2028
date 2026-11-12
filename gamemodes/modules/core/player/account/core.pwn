@@ -37,7 +37,6 @@ hook OnPlayerAccountCheck(playerid)
         return 1;
     }
 
-    printf("[GTASA UI] account lookup finished player=%d rows=%d", playerid, cache_num_rows());
 
     // No master account exists yet: create one using the username already
     // stored by Account_Check.

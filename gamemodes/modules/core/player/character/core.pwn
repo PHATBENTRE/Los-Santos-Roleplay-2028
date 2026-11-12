@@ -8,6 +8,7 @@ forward public OnCharacterSlotsLoaded(playerid);
 forward public OnCharacterNameCheck(playerid);
 forward public OnCharacterCreated(playerid);
 forward public OnCharacterLoaded(playerid);
+forward Character_LoadResult(playerid, session);
 
 //-----------------------------------------------------------------------------
 // Slots loaded
@@ -87,7 +88,6 @@ public OnCharacterSlotsLoaded(playerid)
 
 public OnCharacterNameCheck(playerid)
 {
-    printf("[GTASA UI] character name check player=%d rows=%d", playerid, cache_num_rows());
     if (!IsPlayerConnected(playerid) ||
         !IsPlayerLoggedIn(playerid))
     {
@@ -116,7 +116,6 @@ public OnCharacterNameCheck(playerid)
 
 public OnCharacterCreated(playerid)
 {
-    printf("[GTASA UI] character created callback player=%d insert_id=%d", playerid, cache_insert_id());
     if (!IsPlayerConnected(playerid) ||
         !IsPlayerLoggedIn(playerid))
     {
@@ -157,6 +156,13 @@ public OnCharacterCreated(playerid)
 // Character load
 //-----------------------------------------------------------------------------
 
+public Character_LoadResult(playerid, session)
+{
+    if (!IsPlayerConnected(playerid) || s_UISession[playerid] != session) return 0;
+    // Keep the public callback ABI used by the vehicle/job hooks unchanged.
+    return CallLocalFunction("OnCharacterLoaded", "d", playerid);
+}
+
 public OnCharacterLoaded(playerid)
 {
     if (!IsPlayerConnected(playerid) ||
@@ -167,6 +173,7 @@ public OnCharacterLoaded(playerid)
 
     if (cache_num_rows() == 0)
     {
+        if (s_UICreatorPending[playerid]) return UI_CreatorFail(playerid, 8);
         SendClientMessage(
             playerid,
             COLOR_RED,
@@ -329,6 +336,13 @@ public OnCharacterLoaded(playerid)
     );
 
     s_CharacterLoaded[playerid] = true;
+
+    if (s_UICreatorPending[playerid] && s_CharacterCreated[playerid])
+    {
+        s_UICreatorPending[playerid] = false;
+        UI_Notify(playerid, "success", "Đã tạo nhân vật thành công.");
+        UI_Close(playerid);
+    }
 
     // Chua hoan tat ho so -> bat buoc vao Character Creator.
     if (!s_CharacterCreated[playerid])

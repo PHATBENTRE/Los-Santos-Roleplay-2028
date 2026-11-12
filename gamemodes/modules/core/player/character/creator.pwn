@@ -185,7 +185,7 @@ new
 // Callback
 //-----------------------------------------------------------------------------
 
-forward public OnCharacterCreatorSaved(playerid);
+forward public OnCharacterCreatorSaved(playerid, session, characterid);
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -314,8 +314,8 @@ Creator_NormalizeProfile(playerid)
         s_CharacterBirthMonth[playerid] = 1;
     }
 
-    if (s_CharacterBirthYear[playerid] < CHARACTER_MIN_BIRTH_YEAR ||
-        s_CharacterBirthYear[playerid] > CHARACTER_MAX_BIRTH_YEAR)
+    if (s_CharacterBirthYear[playerid] < 1 ||
+        s_CharacterBirthYear[playerid] > 9999)
     {
         s_CharacterBirthYear[playerid] = 1964;
     }
@@ -944,10 +944,8 @@ CharacterCreator_Start(playerid)
         SpawnPlayer(playerid);
     }
 
-    // CEF uses a single submit flow: save the normalized profile immediately
-    // after the newly created character has loaded.
-    if (UI_UseCEF(playerid))
-        CharacterCreator_Confirm(playerid);
+    // Existing unfinished profiles remain editable. New CEF profiles are inserted
+    // complete by LSRP_CreatorConfirm and never enter this native creator flow.
 
     return 1;
 }
@@ -967,7 +965,6 @@ CharacterCreator_Confirm(playerid)
     s_CreatorSaving[playerid] = true;
 
     UI_Notify(playerid, "info", "Đang lưu hồ sơ nhân vật...");
-    printf("[GTASA UI] creator save begin player=%d character=%d account=%d", playerid, s_CharacterID[playerid], GetPlayerAccountID(playerid));
 
     CancelSelectTextDraw(playerid);
 
@@ -992,34 +989,46 @@ CharacterCreator_Confirm(playerid)
         GetPlayerAccountID(playerid)
     );
 
-    mysql_tquery(
+    if (!mysql_tquery(
         g_DatabaseHandle,
         query,
         "OnCharacterCreatorSaved",
-        "d",
-        playerid
-    );
+        "ddd",
+        playerid,
+        s_UISession[playerid],
+        s_CharacterID[playerid]
+    ))
+    {
+        s_CreatorSaving[playerid] = false;
+        if (UI_UseCEF(playerid)) UI_CreatorFail(playerid, 8);
+        return 0;
+    }
 
-    printf("[GTASA UI] creator save query queued player=%d", playerid);
 
     return 1;
 }
 
-public OnCharacterCreatorSaved(playerid)
+public OnCharacterCreatorSaved(playerid, session, characterid)
 {
-    printf("[GTASA UI] creator save callback player=%d connected=%d loaded=%d", playerid, IsPlayerConnected(playerid), IsPlayerCharacterLoaded(playerid));
-    s_CreatorSaving[playerid] = false;
     if (!IsPlayerConnected(playerid) ||
-        !IsPlayerCharacterLoaded(playerid))
+        !IsPlayerCharacterLoaded(playerid) || s_UISession[playerid] != session || s_CharacterID[playerid] != characterid)
     {
         return 1;
     }
 
+    s_CreatorSaving[playerid] = false;
+    if (cache_affected_rows() != 1)
+    {
+        if (UI_UseCEF(playerid)) return UI_CreatorFail(playerid, 8);
+        Creator_ShowUI(playerid);
+        return 0;
+    }
+
     s_CharacterCreated[playerid] = 1;
     s_CreatorActive[playerid] = false;
-    UI_Close(playerid);
-
+    s_UICreatorPending[playerid] = false;
     UI_Notify(playerid, "success", "Đã tạo nhân vật thành công.");
+    UI_Close(playerid);
     
     Creator_DestroyUI(playerid);
     
