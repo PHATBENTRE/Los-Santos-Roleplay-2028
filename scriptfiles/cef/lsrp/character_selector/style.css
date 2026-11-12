@@ -1,0 +1,39 @@
+.characters { width: 1120px; max-width: 100%; }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+.section-heading h2 { font-size: clamp(30px, 3.6vw, 48px); margin: 16px 0 14px; }
+.section-number { font-size: 12px; letter-spacing: 2px; color: #69869b; padding-bottom: 4px; }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.slot { position: relative; display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-height: 260px; padding: 26px; text-align: left; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(145deg, #193142bd, #0b1822eb 70%); transition: transform 160ms var(--ease); overflow: hidden; }
+.slot::after { content: '↗'; position: absolute; right: 24px; bottom: 25px; color: #7395ac; font-size: 23px; }
+.slot small { font-size: 9px; letter-spacing: 2px; color: #8eaec2; }
+.slot-symbol { display: grid; place-items: center; width: 62px; height: 62px; border: 1px solid #81b9dc33; border-radius: 50%; margin: 28px 0 24px; color: #8acdef; background: #16364b6e; font-size: 21px; font-weight: 500; }
+.slot strong { display: block; font-size: 20px; font-weight: 600; margin-top: auto; padding-right: 15px; overflow-wrap: anywhere; line-height: 1.35; }
+.slot em { font-style: normal; font-size: 12px; color: #90a6b7; margin-top: 10px; padding-right: 20px; }
+.slot.selected { border-color: #5ac5f5; background: linear-gradient(145deg, #204963e0, #0d1e2bea 80%); }
+.slot.selected::after { content: '✓'; color: #72d0fa; }
+.slot.empty { background: #0d1b2673; border-style: dashed; }
+.slot.empty strong { font-size: 17px; }
+.slot.empty .slot-symbol { background: transparent; color: #6e93ac; font-size: 28px; font-weight: 300; }
+.selector-bottom { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
+.selector-bottom .primary { width: 270px; }
+@media (hover: hover) and (pointer: fine) { .slot:hover { border-color: #69b9e389; transform: translateY(-3px); } }
+@media (max-width: 700px) {
+  .section-heading { margin-bottom: 24px; }
+  .section-number { display: none; }
+  .slots { grid-template-columns: 1fr; gap: 12px; }
+  .slot { min-height: 145px; padding: 21px 20px 21px 94px; justify-content: center; }
+  .slot-symbol { position: absolute; left: 18px; top: 38px; width: 56px; height: 56px; margin: 0; }
+  .slot strong { margin-top: 12px; font-size: 18px; }
+  .slot::after { right: 18px; bottom: 18px; font-size: 19px; }
+  .selector-bottom { align-items: stretch; flex-direction: column; gap: 16px; }
+  .selector-bottom .primary { width: 100%; }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .section-heading { margin-bottom: 18px; }
+  .section-heading h2 { font-size: 28px; margin: 8px 0; }
+  .slots { gap: 12px; }
+  .slot { min-height: 185px; padding: 18px; }
+  .slot-symbol { width: 40px; height: 40px; margin: 16px 0; font-size: 16px; }
+  .slot strong { font-size: 16px; }
+  .selector-bottom { margin-top: 16px; padding-top: 16px; }
+}

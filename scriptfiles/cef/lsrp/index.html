@@ -2,22 +2,70 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://cef; script-src 'sha256-Da5D/YA8V6eIB4fiV2CSRMuoFLo2DIR0+VUz3KR1z58='; style-src 'self' http://cef; img-src 'self' http://cef; object-src 'none'; base-uri 'none'">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://cef; script-src 'sha256-N8vILRe9Os34c75Ro1ZfBYMoq23B8whkrr0Z+LJSpcI='; style-src 'self' http://cef; img-src 'self' http://cef; object-src 'none'; base-uri 'none'">
   <title>GTASA Vietnamese</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="notifications" class="notifications" aria-live="polite" aria-relevant="additions"></div>
   <div class="shell">
-    <div id="notifications" class="notifications" aria-live="polite"></div>
-    <header id="site-header"><img class="brand-logo" src="logo.png" alt="GTASA Vietnamese"><span class="edition">SAN ANDREAS · 1992</span></header>
-    <main>
-      <section class="intro" id="site-intro"><p class="eyebrow">CHÀO MỪNG ĐẾN GTASA VIETNAMESE</p><h1>Một thành phố.<br><span>Vạn câu chuyện.</span></h1><p class="muted">Những con phố quen. Những gương mặt mới.<br>Viết tiếp câu chuyện của bạn tại Los Santos.</p><div class="stamp">GTASA VIETNAMESE <span>CÂU CHUYỆN CỦA BẠN BẮT ĐẦU TỪ ĐÂY</span></div></section>
-      <section class="panel" id="auth"><p class="eyebrow">CHÀO MỪNG TRỞ LẠI</p><h2 id="title">Đăng nhập máy chủ</h2><p id="description" class="muted">Nhập tên đăng nhập để tiếp tục.</p><form id="form" novalidate><label for="value" id="label">Tên đăng nhập</label><input id="value" autocomplete="off" minlength="3" maxlength="24" required placeholder="Nhập tên đăng nhập"><p id="error" role="status" aria-live="polite">Đang khởi tạo giao diện…</p><button id="submit" type="submit" disabled>Đang kết nối…</button></form><button id="back" class="secondary" hidden>Đổi tên đăng nhập</button><p class="note">Một tài khoản, nhiều nhân vật. Mỗi nhân vật là một câu chuyện.</p></section>
-      <section class="characters" id="characters" hidden><p class="eyebrow">CHỌN MỘT CÂU CHUYỆN</p><h2>Nhân vật của bạn</h2><p class="muted">Chọn nhân vật để tiếp tục, hoặc bắt đầu với một slot trống.</p><div id="slots"></div><button id="play" disabled>Vào Los Santos <span>→</span></button><p class="note">Slot trống sẽ mở trình tạo nhân vật trong game.</p></section>
-      <section class="creator" id="creator" hidden><div class="creator-head"><div><p class="eyebrow">BẮT ĐẦU CÂU CHUYỆN</p><h2>Tạo nhân vật</h2><p class="muted">Xây dựng diện mạo và thông tin cơ bản cho nhân vật của bạn.</p></div><span class="creator-step">01 / 01</span></div><div class="creator-grid"><label>Tên nhân vật<input id="creator-name" placeholder="Ví dụ: Nguyen_Van_A" autocomplete="off"></label><label>Giới tính<select class="creator-choice"><option>Nam</option><option>Nữ</option></select></label><label>Ngày sinh<input class="creator-choice" type="date" value="1964-01-01"></label><label>Màu da<select class="creator-choice"><option>Sáng</option><option selected>Trung bình</option><option>Tối</option></select></label><label>Giọng nói<select class="creator-choice"><option>Trầm</option><option>Trung</option><option>Trẻ</option><option>Khàn</option></select></label><label>Chiều cao<input class="creator-choice" type="number" min="150" max="210" value="175" step="1"></label><label>Cân nặng<input class="creator-choice" type="number" min="45" max="150" value="70" step="1"></label><label>Nơi sinh<select class="creator-choice"><option>Los Santos</option><option>San Fierro</option><option>Las Venturas</option><option>Nơi khác</option></select></label></div><div class="creator-actions"><p class="note">Các thông tin số có thể nhập trực tiếp.</p><button id="creator-confirm" type="button">Xác nhận nhân vật <span>→</span></button></div></section>
+    <header id="site-header" class="site-header">
+      <img class="brand-logo" src="logo.png" alt="GTASA Vietnamese" width="240" height="82">
+      <span class="edition"><span class="edition-dot" aria-hidden="true"></span> SAN ANDREAS</span>
+    </header>
+    <main id="main">
+      <section class="intro" id="site-intro" aria-labelledby="welcome-title">
+  <div class="city-art" aria-hidden="true"><span class="city-orbit"></span><span class="city-coordinates">34°03′ N &nbsp; 118°15′ W</span></div>
+  <p class="eyebrow"><span class="short-rule" aria-hidden="true"></span> MỘT KHỞI ĐẦU MỚI</p>
+  <h1 id="welcome-title">Thành phố quen.<br><span>Câu chuyện mới.</span></h1>
+  <p class="intro-copy">Gặp những con người mới, chọn con đường của riêng bạn.<br>Phần còn lại, hãy để Los Santos kể tiếp.</p>
+  <div class="world-caption"><span class="world-mark" aria-hidden="true">LS</span><span><strong>LOS SANTOS</strong><small>Những câu chuyện bắt đầu từ đây.</small></span><span class="caption-line" aria-hidden="true"></span></div>
+</section>
+<section class="panel auth-panel" id="auth" aria-labelledby="title">
+  <div class="panel-topline"><span id="auth-eyebrow" class="eyebrow">CHÀO MỪNG TRỞ LẠI</span><span id="auth-step" class="step-label">01 / 02</span></div>
+  <h2 id="title">Bắt đầu câu chuyện.</h2>
+  <p id="description" class="muted">Nhập tên đăng nhập để tiếp tục.</p>
+  <form id="form" novalidate>
+    <label for="value" id="label">Tên đăng nhập</label>
+    <div class="input-wrap"><input id="value" autocomplete="username" minlength="3" maxlength="24" required placeholder="Tên đăng nhập của bạn" spellcheck="false" autocapitalize="none"><button id="toggle-password" class="reveal-button" type="button" aria-label="Hiện mật khẩu" hidden>Hiện</button></div>
+    <p id="error" class="field-message" role="status" aria-live="polite">Đang kết nối với máy chủ…</p>
+    <button id="submit" class="primary" type="submit" disabled>Đang kết nối…</button>
+  </form>
+  <button id="back" class="secondary" type="button" hidden>← Đổi tên đăng nhập</button>
+  <div class="auth-footnote"><span class="tiny-cross" aria-hidden="true">+</span><p>Một tài khoản. Nhiều cuộc đời.<br><span>Chọn nhân vật sau khi đăng nhập.</span></p></div>
+</section>
+
+      <section class="characters" id="characters" aria-labelledby="characters-title" hidden>
+  <div class="section-heading"><div><p class="eyebrow">GTASA VIETNAMESE / NHÂN VẬT</p><h2 id="characters-title">Hôm nay, bạn là ai?</h2><p class="muted">Tiếp tục câu chuyện đang viết, hoặc bắt đầu một cuộc đời mới.</p></div><span class="section-number" aria-hidden="true">01—03</span></div>
+  <div id="slots" class="slots" aria-label="Danh sách nhân vật"></div>
+  <div class="selector-bottom"><p class="note">Chọn nhân vật rồi vào thành phố.<br>Chọn ô trống để tạo nhân vật mới.</p><button id="play" class="primary" type="button" disabled>Vào Los Santos <span aria-hidden="true">→</span></button></div>
+</section>
+
+      <section class="creator" id="creator" aria-labelledby="creator-title" hidden>
+  <aside class="creator-aside"><p class="eyebrow">GTASA VIETNAMESE</p><span class="dossier-label">HỒ SƠ CÔNG DÂN</span><h2 id="creator-title">Một cái tên.<br>Một khởi đầu.</h2><p>Nhân vật là cách bạn bước vào Los Santos. Hãy bắt đầu bằng một câu chuyện của riêng mình.</p><div class="dossier-seal" aria-hidden="true"><span>LOS SANTOS</span><strong>LS</strong><span>SAN ANDREAS</span></div><p class="dossier-foot">CHƯƠNG 01 <span>THÀNH PHỐ ĐANG CHỜ</span></p></aside>
+  <div class="creator-content">
+    <div class="creator-head"><div><p class="eyebrow">THÔNG TIN CƠ BẢN</p><h3>Tạo nhân vật</h3></div><span class="step-label">01 / 01</span></div>
+    <form id="creator-form" novalidate>
+      <div class="creator-grid">
+        <div class="field field-wide"><label for="creator-name">Tên nhân vật</label><input id="creator-name" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="24" required placeholder="Ví dụ: Michael_Johnson" aria-describedby="name-hint"><small class="field-hint" id="name-hint">Tên_Họ, không dấu. Ví dụ: Michael_Johnson.</small></div>
+        <div class="field"><label for="creator-gender">Giới tính</label><select id="creator-gender"><option value="0">Nam</option><option value="1">Nữ</option></select></div>
+        <div class="field"><label for="creator-birthdate">Ngày sinh</label><input id="creator-birthdate" type="date" value="1964-01-01" required></div>
+        <div class="field"><label for="creator-tone">Màu da</label><select id="creator-tone"><option value="0">Sáng</option><option value="1" selected>Trung bình</option><option value="2">Tối</option></select></div>
+        <div class="field"><label for="creator-voice">Giọng nói</label><select id="creator-voice"><option value="0">Trầm</option><option value="1">Trung</option><option value="2">Trẻ</option><option value="3">Khàn</option></select></div>
+        <div class="field"><label for="creator-height">Chiều cao <span>cm</span></label><input id="creator-height" type="number" inputmode="numeric" min="150" max="210" step="1" value="175" required></div>
+        <div class="field"><label for="creator-weight">Cân nặng <span>kg</span></label><input id="creator-weight" type="number" inputmode="numeric" min="45" max="150" step="1" value="70" required></div>
+        <div class="field field-wide"><label for="creator-birthplace">Nơi sinh</label><select id="creator-birthplace"><option value="0">Los Santos</option><option value="1">San Fierro</option><option value="2">Las Venturas</option><option value="3">Nơi khác</option></select></div>
+      </div>
+      <p id="creator-error" class="field-message" role="status" aria-live="polite"></p>
+      <div class="creator-actions"><p id="creator-status" class="note" aria-live="polite">Sẵn sàng cho chương đầu tiên?</p><button id="creator-confirm" class="primary" type="submit">Tạo nhân vật <span aria-hidden="true">→</span></button></div>
+    </form>
+  </div>
+</section>
+
     </main>
-    <footer id="site-footer"><span>GTASA VIETNAMESE · SAN ANDREAS</span><button id="classic" class="text-button">Dùng giao diện cơ bản ↗</button></footer>
+    <footer id="site-footer"><span>GTASA VIETNAMESE</span><span>LOS SANTOS, SAN ANDREAS <i aria-hidden="true">✦</i></span></footer>
+    <button id="classic" class="text-button fallback-button" type="button">Giao diện cơ bản <span aria-hidden="true">↗</span></button>
   </div>
   <!-- CEF_APP_START -->
 <script>
@@ -33,12 +81,14 @@ let pending = false;
 const slots = [];
 let navigationState = false;
 let lastSnapshot = '';
+let lastToastRevision = 0;
 
 function character(index, name, level, skin, exists, selected) {
   const slot = slots[index];
   if (!slot) return;
   slot.name.textContent = exists ? name.replace(/_/g, ' ') : '+ Tạo nhân vật mới';
-  slot.info.textContent = exists ? `Cấp ${level} · Ngoại hình #${skin}` : 'Một câu chuyện mới đang chờ';
+  slot.info.textContent = exists ? `Cấp ${level} · Tiếp tục câu chuyện` : 'Bắt đầu một cuộc đời mới';
+  slot.button.classList.toggle('empty', !exists);
   slot.button.classList.toggle('selected', !!selected);
   if (selected) $('play').disabled = !exists;
 }
@@ -54,9 +104,15 @@ function applySnapshot() {
   const next = Number(data.get('stage'));
   if (document.body && document.body.classList && typeof document.body.classList.add === 'function') document.body.classList.add('booted');
   screen(next, data.get('username') || '');
+  const toastRevision = Number(data.get('toast') || 0);
+  if (toastRevision > lastToastRevision) {
+    lastToastRevision = toastRevision;
+    notify('success', 'Đã tạo nhân vật thành công.');
+  }
   if (next === 6) {
     clearTimeout(window.creatorSaveTimer);
-    if (typeof setCreatorBusy === 'function') setCreatorBusy(false);
+    setCreatorBusy(data.get('cbusy') === '1');
+    if (data.get('cactive') === '1' && data.get('cname')) $('creator-name').value = data.get('cname');
   }
   if (next === 4) {
     for (let i = 0; i < 3; i++) character(i, data.get(`n${i}`) || '',
@@ -67,9 +123,19 @@ function applySnapshot() {
     1: 'Tên đăng nhập gồm 3–24 ký tự: chữ, số hoặc dấu gạch dưới (_). Mật khẩu đăng ký cần ít nhất 6 ký tự.',
     2: 'Mật khẩu chưa đúng. Vui lòng thử lại.',
     3: 'Mật khẩu tối đa 72 ký tự.',
-    4: 'Tên nhân vật đã được sử dụng.'
+    4: 'Tên nhân vật hoặc ô nhân vật đã được sử dụng.',
+    5: 'Tên nhân vật phải có dạng Tên_Họ, mỗi phần ít nhất 2 chữ cái.',
+    6: 'Ngày sinh không hợp lệ. Hãy kiểm tra lại ngày, tháng và năm.',
+    7: 'Kiểm tra chiều cao (150–210 cm), cân nặng (45–150 kg) và các lựa chọn.',
+    8: 'Chưa thể xác nhận lưu. Hãy kết nối lại để kiểm tra nhân vật trước khi thử tiếp.',
+    9: 'Ô nhân vật không còn hợp lệ. Hãy mở lại màn chọn nhân vật.'
   };
-  if (errors[data.get('error')]) { busy(false); $('error').textContent = errors[data.get('error')]; }
+  if (errors[data.get('error')]) {
+    busy(false);
+    const message = errors[data.get('error')];
+    $(next === 6 ? 'creator-error' : 'error').textContent = message;
+    notify('error', message);
+  }
   return true;
 }
 function emit(name, ...args) {
@@ -83,24 +149,43 @@ function emit(name, ...args) {
     return false;
   }
 }
-function notify(type, message) {
+const notificationQueue = [];
+function showQueuedNotifications() {
   const host = $('notifications');
   if (!host) return;
+  while (host.children.length < 3 && notificationQueue.length) {
+  const { type, message } = notificationQueue.shift();
   const item = document.createElement('div');
   const kind = type || 'info';
-  const meta = { info: ['i', 'Thông báo'], success: ['✓', 'Thành công'], warning: ['!', 'Cảnh báo'], error: ['×', 'Có lỗi'] }[kind] || ['i', 'Thông báo'];
+  const meta = { info: ['i', 'THÔNG TIN'], success: ['✓', 'THÀNH CÔNG'], warning: ['!', 'CẢNH BÁO'], error: ['×', 'LỖI'] }[kind] || ['i', 'THÔNG TIN'];
   item.className = `notify notify-${kind}`;
   const icon = document.createElement('span'); icon.className = 'notify-icon'; icon.textContent = meta[0];
   const content = document.createElement('span'); content.className = 'notify-content';
   const title = document.createElement('strong'); title.textContent = meta[1];
   const text = document.createElement('span'); text.textContent = message || '';
-  const bar = document.createElement('i');
+  const badge = document.createElement('span'); badge.className = 'notify-badge'; badge.textContent = 'SERVER';
+  const bar = document.createElement('progress');
   bar.className = 'notify-bar';
-  bar.style.transform = 'scaleX(1)';
-  bar.style.transformOrigin = 'left center';
-  content.append(title, text); item.append(icon, content, bar);
+  bar.max = 1; bar.value = 1;
+  content.append(title, text); item.append(icon, content, bar, badge);
   host.appendChild(item);
-  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
+  const start = performance.now();
+  function tick(now) {
+    if (!item.isConnected) return;
+    bar.value = Math.max(0, 1 - (now - start) / 4200);
+    if (bar.value > 0) requestAnimationFrame(tick);
+    else { item.classList.add('notify-leave'); setTimeout(() => {
+      item.remove();
+      showQueuedNotifications();
+      if (!host.children.length && !notificationQueue.length && stage === 0) emit('lsrp:notify_drained');
+    }, 180); }
+  }
+  requestAnimationFrame(tick);
+  }
+}
+function notify(type, message) {
+  notificationQueue.push({ type, message });
+  showQueuedNotifications();
   if (type === 'info' && String(message).includes('kiểm tra tên')) setCreatorBusy(false);
   if (type === 'info' && String(message).includes('kiểm tra tên')) clearTimeout(window.creatorSaveTimer);
   if (type === 'info' && String(message).includes('hoàn tất hồ sơ')) {
@@ -112,7 +197,6 @@ function notify(type, message) {
     clearTimeout(window.creatorSaveTimer);
     setCreatorBusy(false);
   }
-  setTimeout(() => { item.classList.add('notify-leave'); setTimeout(() => item.remove(), 260); }, 4200);
 }
 function setCreatorBusy(value) {
   window.creatorBusy = !!value;
@@ -128,6 +212,7 @@ function busy(value) {
   $('back').disabled = value;
 }
 function screen(next, username) {
+  const changed = stage !== Number(next);
   clearTimeout(responseTimer);
   const auth = $('auth');
   const characters = $('characters');
@@ -147,6 +232,11 @@ function screen(next, username) {
     document.body.classList.toggle('selector-mode', showCharacters);
   }
   if (next === 0) {
+    clearTimeout(window.creatorSaveTimer);
+    setCreatorBusy(false);
+    if (document.body) document.body.classList.add('closed');
+    ['auth','characters','creator','site-header','site-intro','site-footer','classic'].forEach(id => { if ($(id)) $(id).hidden = true; });
+    return;
     [auth, characters].forEach((view) => {
       if (view.hidden) return;
       if (!view.classList) { view.hidden = true; return; }
@@ -159,7 +249,8 @@ function screen(next, username) {
   auth.hidden = next === 0 || showCharacters || showCreator;
   characters.hidden = !showCharacters;
   const activeView = showCreator ? creator : showCharacters ? characters : auth;
-  if (next !== 0) {
+  if (document.body) document.body.classList.remove('closed');
+  if (next !== 0 && changed) {
     if (activeView.classList && typeof activeView.classList.remove === 'function') {
       activeView.classList.remove('view-enter');
       void activeView.offsetWidth;
@@ -167,12 +258,16 @@ function screen(next, username) {
     }
   }
   if (next === 4) $('play').disabled = true;
+  if (next === 4 || next === 6) return;
   $('error').textContent = '';
   if (next === 5) {
     $('description').textContent = 'Đang xử lý, vui lòng chờ…';
     return;
   }
   const password = next === 2 || next === 3;
+  $('auth-step').textContent = password ? '02 / 02' : '01 / 02';
+  $('auth-eyebrow').textContent = next === 2 ? 'TẠO TÀI KHOẢN' : next === 3 ? 'CHÀO MỪNG TRỞ LẠI' : 'BẮT ĐẦU CÂU CHUYỆN';
+  if ($('toggle-password')) $('toggle-password').hidden = !password;
   $('title').textContent = next === 2 ? 'Tạo tài khoản' : next === 3 ? 'Đăng nhập' : 'Đăng nhập máy chủ';
   $('description').textContent = password ? `Tên đăng nhập: ${username}` : 'Nhập tên đăng nhập để tiếp tục.';
   $('label').textContent = password ? 'Mật khẩu' : 'Tên đăng nhập';
@@ -186,7 +281,7 @@ function screen(next, username) {
   else input.pattern = '[A-Za-z0-9_]{3,24}';
   $('submit').textContent = next === 2 ? 'Đăng ký →' : next === 3 ? 'Đăng nhập →' : 'Tiếp tục →';
   $('back').hidden = !password;
-  if (next !== 4 && next !== 0) input.focus();
+  if (changed && !window.matchMedia?.('(pointer: coarse)').matches) input.focus();
 }
 for (let i = 0; i < 3; i++) {
   const button = document.createElement('button');
@@ -195,7 +290,8 @@ for (let i = 0; i < 3; i++) {
   label.textContent = `NHÂN VẬT 0${i + 1}`;
   const name = document.createElement('strong');
   const info = document.createElement('em');
-  button.append(label, name, info);
+  const symbol = document.createElement('span'); symbol.className = 'slot-symbol'; symbol.textContent = `0${i + 1}`;
+  button.append(label, symbol, name, info);
   button.onclick = () => { if (!pending) emit('lsrp:slot', i); };
   $('slots').append(button);
   slots.push({button, name, info});
@@ -230,10 +326,21 @@ $('form').onsubmit = (event) => {
 $('back').onclick = () => emit('lsrp:back');
 $('classic').onclick = () => emit('lsrp:classic');
 $('play').onclick = () => emit('lsrp:play');
-if ($('creator-confirm')) $('creator-confirm').onclick = () => {
+if ($('toggle-password')) $('toggle-password').onclick = () => {
+  const show = $('value').type === 'password';
+  $('value').type = show ? 'text' : 'password';
+  $('toggle-password').textContent = show ? 'Ẩn' : 'Hiện';
+};
+if ($('creator-form')) $('creator-form').onsubmit = (event) => {
+  event.preventDefault();
   if ($('creator-confirm').disabled) return;
   const name = $('creator-name') ? $('creator-name').value.trim() : '';
-  if (!/^[A-Za-z]+_[A-Za-z]+$/.test(name)) { notify('warning', 'Tên nhân vật phải có dạng First_Last.'); return; }
+  if (!/^[A-Za-z]{2,}_[A-Za-z]{2,}$/.test(name) || name.length > 24) { notify('warning', 'Tên nhân vật phải có dạng Tên_Họ, mỗi phần ít nhất 2 chữ cái.'); return; }
+  const [year, month, day] = $('creator-birthdate').value.split('-').map(Number);
+  if (!year || !month || !day || !$('creator-form').checkValidity()) { notify('warning', 'Hãy kiểm tra ngày sinh, chiều cao và cân nặng.'); return; }
+  const numeric = id => Number($(id).value);
+  setCreatorBusy(true);
+  $('creator-error').textContent = '';
   const confirm = $('creator-confirm');
   confirm.disabled = true;
   confirm.textContent = 'Đang kiểm tra…';
@@ -243,7 +350,7 @@ if ($('creator-confirm')) $('creator-confirm').onclick = () => {
       notify('error', 'Máy chủ chưa phản hồi việc lưu nhân vật. Bạn có thể thử lại.');
     }
   }, 15000);
-  emit('lsrp:creator_confirm', name);
+  if (!emit('lsrp:creator_confirm', name, numeric('creator-gender'), day, month, year, numeric('creator-tone'), numeric('creator-voice'), numeric('creator-height'), numeric('creator-weight'), numeric('creator-birthplace'))) setCreatorBusy(false);
 };
 if ($('creator') && typeof $('creator').querySelectorAll === 'function') $('creator').querySelectorAll('select').forEach((select) => {
   select.addEventListener('change', () => {

@@ -9,12 +9,14 @@ let pending = false;
 const slots = [];
 let navigationState = false;
 let lastSnapshot = '';
+let lastToastRevision = 0;
 
 function character(index, name, level, skin, exists, selected) {
   const slot = slots[index];
   if (!slot) return;
   slot.name.textContent = exists ? name.replace(/_/g, ' ') : '+ Tạo nhân vật mới';
-  slot.info.textContent = exists ? `Cấp ${level} · Ngoại hình #${skin}` : 'Một câu chuyện mới đang chờ';
+  slot.info.textContent = exists ? `Cấp ${level} · Tiếp tục câu chuyện` : 'Bắt đầu một cuộc đời mới';
+  slot.button.classList.toggle('empty', !exists);
   slot.button.classList.toggle('selected', !!selected);
   if (selected) $('play').disabled = !exists;
 }
@@ -30,9 +32,15 @@ function applySnapshot() {
   const next = Number(data.get('stage'));
   if (document.body && document.body.classList && typeof document.body.classList.add === 'function') document.body.classList.add('booted');
   screen(next, data.get('username') || '');
+  const toastRevision = Number(data.get('toast') || 0);
+  if (toastRevision > lastToastRevision) {
+    lastToastRevision = toastRevision;
+    notify('success', 'Đã tạo nhân vật thành công.');
+  }
   if (next === 6) {
     clearTimeout(window.creatorSaveTimer);
-    if (typeof setCreatorBusy === 'function') setCreatorBusy(false);
+    setCreatorBusy(data.get('cbusy') === '1');
+    if (data.get('cactive') === '1' && data.get('cname')) $('creator-name').value = data.get('cname');
   }
   if (next === 4) {
     for (let i = 0; i < 3; i++) character(i, data.get(`n${i}`) || '',
@@ -43,9 +51,19 @@ function applySnapshot() {
     1: 'Tên đăng nhập gồm 3–24 ký tự: chữ, số hoặc dấu gạch dưới (_). Mật khẩu đăng ký cần ít nhất 6 ký tự.',
     2: 'Mật khẩu chưa đúng. Vui lòng thử lại.',
     3: 'Mật khẩu tối đa 72 ký tự.',
-    4: 'Tên nhân vật đã được sử dụng.'
+    4: 'Tên nhân vật hoặc ô nhân vật đã được sử dụng.',
+    5: 'Tên nhân vật phải có dạng Tên_Họ, mỗi phần ít nhất 2 chữ cái.',
+    6: 'Ngày sinh không hợp lệ. Hãy kiểm tra lại ngày, tháng và năm.',
+    7: 'Kiểm tra chiều cao (150–210 cm), cân nặng (45–150 kg) và các lựa chọn.',
+    8: 'Chưa thể xác nhận lưu. Hãy kết nối lại để kiểm tra nhân vật trước khi thử tiếp.',
+    9: 'Ô nhân vật không còn hợp lệ. Hãy mở lại màn chọn nhân vật.'
   };
-  if (errors[data.get('error')]) { busy(false); $('error').textContent = errors[data.get('error')]; }
+  if (errors[data.get('error')]) {
+    busy(false);
+    const message = errors[data.get('error')];
+    $(next === 6 ? 'creator-error' : 'error').textContent = message;
+    notify('error', message);
+  }
   return true;
 }
 function emit(name, ...args) {
@@ -59,24 +77,43 @@ function emit(name, ...args) {
     return false;
   }
 }
-function notify(type, message) {
+const notificationQueue = [];
+function showQueuedNotifications() {
   const host = $('notifications');
   if (!host) return;
+  while (host.children.length < 3 && notificationQueue.length) {
+  const { type, message } = notificationQueue.shift();
   const item = document.createElement('div');
   const kind = type || 'info';
-  const meta = { info: ['i', 'Thông báo'], success: ['✓', 'Thành công'], warning: ['!', 'Cảnh báo'], error: ['×', 'Có lỗi'] }[kind] || ['i', 'Thông báo'];
+  const meta = { info: ['i', 'THÔNG TIN'], success: ['✓', 'THÀNH CÔNG'], warning: ['!', 'CẢNH BÁO'], error: ['×', 'LỖI'] }[kind] || ['i', 'THÔNG TIN'];
   item.className = `notify notify-${kind}`;
   const icon = document.createElement('span'); icon.className = 'notify-icon'; icon.textContent = meta[0];
   const content = document.createElement('span'); content.className = 'notify-content';
   const title = document.createElement('strong'); title.textContent = meta[1];
   const text = document.createElement('span'); text.textContent = message || '';
-  const bar = document.createElement('i');
+  const badge = document.createElement('span'); badge.className = 'notify-badge'; badge.textContent = 'SERVER';
+  const bar = document.createElement('progress');
   bar.className = 'notify-bar';
-  bar.style.transform = 'scaleX(1)';
-  bar.style.transformOrigin = 'left center';
-  content.append(title, text); item.append(icon, content, bar);
+  bar.max = 1; bar.value = 1;
+  content.append(title, text); item.append(icon, content, bar, badge);
   host.appendChild(item);
-  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
+  const start = performance.now();
+  function tick(now) {
+    if (!item.isConnected) return;
+    bar.value = Math.max(0, 1 - (now - start) / 4200);
+    if (bar.value > 0) requestAnimationFrame(tick);
+    else { item.classList.add('notify-leave'); setTimeout(() => {
+      item.remove();
+      showQueuedNotifications();
+      if (!host.children.length && !notificationQueue.length && stage === 0) emit('lsrp:notify_drained');
+    }, 180); }
+  }
+  requestAnimationFrame(tick);
+  }
+}
+function notify(type, message) {
+  notificationQueue.push({ type, message });
+  showQueuedNotifications();
   if (type === 'info' && String(message).includes('kiểm tra tên')) setCreatorBusy(false);
   if (type === 'info' && String(message).includes('kiểm tra tên')) clearTimeout(window.creatorSaveTimer);
   if (type === 'info' && String(message).includes('hoàn tất hồ sơ')) {
@@ -88,7 +125,6 @@ function notify(type, message) {
     clearTimeout(window.creatorSaveTimer);
     setCreatorBusy(false);
   }
-  setTimeout(() => { item.classList.add('notify-leave'); setTimeout(() => item.remove(), 260); }, 4200);
 }
 function setCreatorBusy(value) {
   window.creatorBusy = !!value;
@@ -104,6 +140,7 @@ function busy(value) {
   $('back').disabled = value;
 }
 function screen(next, username) {
+  const changed = stage !== Number(next);
   clearTimeout(responseTimer);
   const auth = $('auth');
   const characters = $('characters');
@@ -123,6 +160,11 @@ function screen(next, username) {
     document.body.classList.toggle('selector-mode', showCharacters);
   }
   if (next === 0) {
+    clearTimeout(window.creatorSaveTimer);
+    setCreatorBusy(false);
+    if (document.body) document.body.classList.add('closed');
+    ['auth','characters','creator','site-header','site-intro','site-footer','classic'].forEach(id => { if ($(id)) $(id).hidden = true; });
+    return;
     [auth, characters].forEach((view) => {
       if (view.hidden) return;
       if (!view.classList) { view.hidden = true; return; }
@@ -135,7 +177,8 @@ function screen(next, username) {
   auth.hidden = next === 0 || showCharacters || showCreator;
   characters.hidden = !showCharacters;
   const activeView = showCreator ? creator : showCharacters ? characters : auth;
-  if (next !== 0) {
+  if (document.body) document.body.classList.remove('closed');
+  if (next !== 0 && changed) {
     if (activeView.classList && typeof activeView.classList.remove === 'function') {
       activeView.classList.remove('view-enter');
       void activeView.offsetWidth;
@@ -143,12 +186,16 @@ function screen(next, username) {
     }
   }
   if (next === 4) $('play').disabled = true;
+  if (next === 4 || next === 6) return;
   $('error').textContent = '';
   if (next === 5) {
     $('description').textContent = 'Đang xử lý, vui lòng chờ…';
     return;
   }
   const password = next === 2 || next === 3;
+  $('auth-step').textContent = password ? '02 / 02' : '01 / 02';
+  $('auth-eyebrow').textContent = next === 2 ? 'TẠO TÀI KHOẢN' : next === 3 ? 'CHÀO MỪNG TRỞ LẠI' : 'BẮT ĐẦU CÂU CHUYỆN';
+  if ($('toggle-password')) $('toggle-password').hidden = !password;
   $('title').textContent = next === 2 ? 'Tạo tài khoản' : next === 3 ? 'Đăng nhập' : 'Đăng nhập máy chủ';
   $('description').textContent = password ? `Tên đăng nhập: ${username}` : 'Nhập tên đăng nhập để tiếp tục.';
   $('label').textContent = password ? 'Mật khẩu' : 'Tên đăng nhập';
@@ -162,7 +209,7 @@ function screen(next, username) {
   else input.pattern = '[A-Za-z0-9_]{3,24}';
   $('submit').textContent = next === 2 ? 'Đăng ký →' : next === 3 ? 'Đăng nhập →' : 'Tiếp tục →';
   $('back').hidden = !password;
-  if (next !== 4 && next !== 0) input.focus();
+  if (changed && !window.matchMedia?.('(pointer: coarse)').matches) input.focus();
 }
 for (let i = 0; i < 3; i++) {
   const button = document.createElement('button');
@@ -171,7 +218,8 @@ for (let i = 0; i < 3; i++) {
   label.textContent = `NHÂN VẬT 0${i + 1}`;
   const name = document.createElement('strong');
   const info = document.createElement('em');
-  button.append(label, name, info);
+  const symbol = document.createElement('span'); symbol.className = 'slot-symbol'; symbol.textContent = `0${i + 1}`;
+  button.append(label, symbol, name, info);
   button.onclick = () => { if (!pending) emit('lsrp:slot', i); };
   $('slots').append(button);
   slots.push({button, name, info});
@@ -206,10 +254,21 @@ $('form').onsubmit = (event) => {
 $('back').onclick = () => emit('lsrp:back');
 $('classic').onclick = () => emit('lsrp:classic');
 $('play').onclick = () => emit('lsrp:play');
-if ($('creator-confirm')) $('creator-confirm').onclick = () => {
+if ($('toggle-password')) $('toggle-password').onclick = () => {
+  const show = $('value').type === 'password';
+  $('value').type = show ? 'text' : 'password';
+  $('toggle-password').textContent = show ? 'Ẩn' : 'Hiện';
+};
+if ($('creator-form')) $('creator-form').onsubmit = (event) => {
+  event.preventDefault();
   if ($('creator-confirm').disabled) return;
   const name = $('creator-name') ? $('creator-name').value.trim() : '';
-  if (!/^[A-Za-z]+_[A-Za-z]+$/.test(name)) { notify('warning', 'Tên nhân vật phải có dạng First_Last.'); return; }
+  if (!/^[A-Za-z]{2,}_[A-Za-z]{2,}$/.test(name) || name.length > 24) { notify('warning', 'Tên nhân vật phải có dạng Tên_Họ, mỗi phần ít nhất 2 chữ cái.'); return; }
+  const [year, month, day] = $('creator-birthdate').value.split('-').map(Number);
+  if (!year || !month || !day || !$('creator-form').checkValidity()) { notify('warning', 'Hãy kiểm tra ngày sinh, chiều cao và cân nặng.'); return; }
+  const numeric = id => Number($(id).value);
+  setCreatorBusy(true);
+  $('creator-error').textContent = '';
   const confirm = $('creator-confirm');
   confirm.disabled = true;
   confirm.textContent = 'Đang kiểm tra…';
@@ -219,7 +278,7 @@ if ($('creator-confirm')) $('creator-confirm').onclick = () => {
       notify('error', 'Máy chủ chưa phản hồi việc lưu nhân vật. Bạn có thể thử lại.');
     }
   }, 15000);
-  emit('lsrp:creator_confirm', name);
+  if (!emit('lsrp:creator_confirm', name, numeric('creator-gender'), day, month, year, numeric('creator-tone'), numeric('creator-voice'), numeric('creator-height'), numeric('creator-weight'), numeric('creator-birthplace'))) setCreatorBusy(false);
 };
 if ($('creator') && typeof $('creator').querySelectorAll === 'function') $('creator').querySelectorAll('select').forEach((select) => {
   select.addEventListener('change', () => {

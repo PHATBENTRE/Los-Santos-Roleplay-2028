@@ -1,0 +1,40 @@
+.intro { position: relative; flex: 1; min-width: 0; padding: 55px 0 35px; }
+.intro > :not(.city-art) { position: relative; }
+.intro .eyebrow { display: flex; align-items: center; gap: 13px; margin-bottom: 26px; }
+.short-rule { width: 30px; height: 1px; background: var(--accent); }
+h1 { font-size: clamp(42px, 4.5vw, 76px); line-height: 1.12; font-weight: 680; letter-spacing: -2.8px; }
+h1 span { color: var(--accent); }
+.intro-copy { margin-top: 26px; max-width: 470px; color: #9fb3c2; font-size: 14px; line-height: 1.9; }
+.world-caption { display: flex; align-items: center; gap: 17px; margin-top: 70px; max-width: 470px; }
+.world-mark { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #81adca40; border-radius: 50%; color: #8eb9d5; font-size: 14px; font-weight: 600; }
+.world-caption strong { font-size: 10px; letter-spacing: 3px; color: #cadce8; }
+.world-caption small { display: block; margin-top: 7px; font-size: 10px; color: #7c94a5; }
+.caption-line { flex: 1; height: 1px; background: linear-gradient(90deg, #82bfe335, transparent); margin-left: 10px; }
+.city-art { position: absolute; inset: -12% -10% -10% -8%; overflow: hidden; pointer-events: none; background: url('city-map.svg') center / cover no-repeat; opacity: .7; }
+.city-coordinates { position: absolute; left: 23%; top: 0; color: #5c7b90; font-size: 9px; letter-spacing: 2px; }
+.auth-panel { position: relative; width: 410px; flex: 0 0 410px; padding: 34px; border: 1px solid #a6cbe429; border-radius: 18px; background: linear-gradient(155deg, #1a3040ed, #0a1722f5 50%); box-shadow: 0 20px 60px #0003; }
+.auth-panel::before { content: ''; position: absolute; left: 34px; top: -1px; width: 44px; height: 2px; background: var(--accent); }
+.panel-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.auth-panel h2 { font-size: 30px; }
+.auth-panel .muted { margin-top: 12px; min-height: 48px; font-size: 13px; }
+.auth-panel form { margin-top: 27px; }
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 65px; }
+.reveal-button { position: absolute; right: 4px; top: 4px; min-width: 52px; height: 44px; border: 0; border-radius: 6px; background: transparent; color: #80c9ef; font-size: 11px; }
+.auth-footnote { display: flex; align-items: center; gap: 12px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.auth-footnote p { font-size: 11px; line-height: 1.8; color: #b4c7d4; }
+.auth-footnote p span { color: #7c94a5; }
+.tiny-cross { color: #4b91b7; font-size: 24px; font-weight: 300; }
+@media (max-width: 1100px) { h1 { font-size: 46px; } .auth-panel { flex-basis: 370px; width: 370px; padding: 28px; } .intro-copy br { display: none; } }
+@media (max-width: 800px) { .intro { display: none; } .auth-panel { width: 410px; flex: 0 1 410px; margin: auto; } }
+@media (max-width: 440px) { .auth-panel { padding: 26px 22px; } .auth-panel h2 { font-size: 28px; } }
+@media (max-height: 550px) and (orientation: landscape) {
+  .intro { display: block; padding: 15px 0; }
+  h1 { font-size: 34px; letter-spacing: -1.2px; }
+  .intro-copy { font-size: 12px; margin-top: 16px; }
+  .world-caption, .city-art { display: none; }
+  .auth-panel { padding: 22px; flex-basis: 340px; }
+  .panel-topline { margin-bottom: 14px; }
+  .auth-panel form { margin-top: 15px; }
+  .auth-footnote { display: none; }
+}

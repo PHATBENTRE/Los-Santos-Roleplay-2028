@@ -1,0 +1,20 @@
+<section class="creator" id="creator" aria-labelledby="creator-title" hidden>
+  <aside class="creator-aside"><p class="eyebrow">GTASA VIETNAMESE</p><span class="dossier-label">HỒ SƠ CÔNG DÂN</span><h2 id="creator-title">Một cái tên.<br>Một khởi đầu.</h2><p>Nhân vật là cách bạn bước vào Los Santos. Hãy bắt đầu bằng một câu chuyện của riêng mình.</p><div class="dossier-seal" aria-hidden="true"><span>LOS SANTOS</span><strong>LS</strong><span>SAN ANDREAS</span></div><p class="dossier-foot">CHƯƠNG 01 <span>THÀNH PHỐ ĐANG CHỜ</span></p></aside>
+  <div class="creator-content">
+    <div class="creator-head"><div><p class="eyebrow">THÔNG TIN CƠ BẢN</p><h3>Tạo nhân vật</h3></div><span class="step-label">01 / 01</span></div>
+    <form id="creator-form" novalidate>
+      <div class="creator-grid">
+        <div class="field field-wide"><label for="creator-name">Tên nhân vật</label><input id="creator-name" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="24" required placeholder="Ví dụ: Michael_Johnson" aria-describedby="name-hint"><small class="field-hint" id="name-hint">Tên_Họ, không dấu. Ví dụ: Michael_Johnson.</small></div>
+        <div class="field"><label for="creator-gender">Giới tính</label><select id="creator-gender"><option value="0">Nam</option><option value="1">Nữ</option></select></div>
+        <div class="field"><label for="creator-birthdate">Ngày sinh</label><input id="creator-birthdate" type="date" value="1964-01-01" required></div>
+        <div class="field"><label for="creator-tone">Màu da</label><select id="creator-tone"><option value="0">Sáng</option><option value="1" selected>Trung bình</option><option value="2">Tối</option></select></div>
+        <div class="field"><label for="creator-voice">Giọng nói</label><select id="creator-voice"><option value="0">Trầm</option><option value="1">Trung</option><option value="2">Trẻ</option><option value="3">Khàn</option></select></div>
+        <div class="field"><label for="creator-height">Chiều cao <span>cm</span></label><input id="creator-height" type="number" inputmode="numeric" min="150" max="210" step="1" value="175" required></div>
+        <div class="field"><label for="creator-weight">Cân nặng <span>kg</span></label><input id="creator-weight" type="number" inputmode="numeric" min="45" max="150" step="1" value="70" required></div>
+        <div class="field field-wide"><label for="creator-birthplace">Nơi sinh</label><select id="creator-birthplace"><option value="0">Los Santos</option><option value="1">San Fierro</option><option value="2">Las Venturas</option><option value="3">Nơi khác</option></select></div>
+      </div>
+      <p id="creator-error" class="field-message" role="status" aria-live="polite"></p>
+      <div class="creator-actions"><p id="creator-status" class="note" aria-live="polite">Sẵn sàng cho chương đầu tiên?</p><button id="creator-confirm" class="primary" type="submit">Tạo nhân vật <span aria-hidden="true">→</span></button></div>
+    </form>
+  </div>
+</section>
